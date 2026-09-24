@@ -7,27 +7,9 @@
         <title>Mac OS</title>
         <style>
           /* <![CDATA[ */
-          html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #000;
-          }
-          iframe {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #000;
-          }
-          #status {
-            color: #fff;
-            font-family: system-ui, sans-serif;
-            padding: 20px;
-          }
+          html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; }
+          iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; background:#000; }
+          #status { color:#fff; font-family:system-ui,sans-serif; padding:20px; }
           /* ]]> */
         </style>
       </head>
@@ -36,38 +18,28 @@
         <script>
         //<![CDATA[
           (function () {
-            // IMPORTANT: load index.html as a real URL (not a blob:).
-            // Service workers cannot register correctly inside blob: iframes
-            // (they try /sw.js on the CDN root → HTTP 400).
-            var base = "https://cdn.jsdelivr.net/gh/Mo9nikeypurple/skool@main/";
-            // Prefer same host as this SVG when possible (cdn vs fastly)
+            // Use the SAME jsDelivr host as this SVG so SW origin matches
+            var host = "cdn.jsdelivr.net";
             try {
-              if (location && location.hostname && /\.jsdelivr\.net$/i.test(location.hostname)) {
-                base = location.protocol + "//" + location.hostname + "/gh/Mo9nikeypurple/skool@main/";
+              if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
+                host = location.hostname;
               }
             } catch (e) {}
+            var base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
             var url = base + "index.html?t=" + Date.now();
             var XHTML = "http://www.w3.org/1999/xhtml";
-
-            var body = document.body
-              || document.getElementsByTagName("body")[0]
-              || document.documentElement;
-            var status = document.getElementById("status")
-              || document.querySelector("#status");
-
+            var body = document.body || document.getElementsByTagName("body")[0] || document.documentElement;
+            var status = document.getElementById("status");
             try {
               var iframe = document.createElementNS(XHTML, "iframe");
               iframe.setAttribute("style", "position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;");
               iframe.setAttribute("allow", "fullscreen; autoplay; encrypted-media; clipboard-read; clipboard-write");
-              // Direct URL — same origin path as sw.js in the repo
               iframe.setAttribute("src", url);
-
-              if (!body) throw new Error("No body element found");
+              if (!body) throw new Error("No body");
               body.appendChild(iframe);
               if (status) status.setAttribute("style", "display:none");
             } catch (err) {
-              var msg = (err && err.message) ? err.message : String(err);
-              if (status) status.textContent = "Failed to load: " + msg;
+              if (status) status.textContent = "Failed: " + ((err && err.message) || err);
             }
           })();
         //]]>
