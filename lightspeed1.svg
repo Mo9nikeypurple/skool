@@ -1,98 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;background:#000;">
-  <foreignObject x="0" y="0" width="100%" height="100%">
-    <html xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;margin:0;padding:0;background:#000;">
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <foreignObject width="100%" height="100%">
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
       <head>
+        <script>
+        //<![CDATA[
+        (function(){
+          var XHTML_NS="http://www.w3.org/1999/xhtml";
+          var root=document.querySelector("foreignObject").firstElementChild;
+          if(!root) return;
+          var originalCreateElement=document.createElement.bind(document);
+          var originalCreateElementNS=document.createElementNS.bind(document);
+          Object.defineProperty(document,"head",{get:function(){return root.querySelector("head");},configurable:true});
+          Object.defineProperty(document,"body",{get:function(){return root.querySelector("body");},configurable:true});
+          Object.defineProperty(document,"documentElement",{get:function(){return root;},configurable:true});
+          document.createElement=function(tagName,options){
+            if(typeof tagName==="string") return originalCreateElementNS(XHTML_NS,tagName,options);
+            return originalCreateElement(tagName,options);
+          };
+          document.createElementNS=function(ns,name,options){
+            if(ns==null||ns===XHTML_NS) return originalCreateElementNS(XHTML_NS,name,options);
+            return originalCreateElementNS(ns,name,options);
+          };
+        })();
+        //]]>
+        </script>
         <meta charset="UTF-8"/>
         <title>Mac OS</title>
         <style>
-          /* <![CDATA[ */
-          html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #000;
-          }
-          iframe {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #000;
-          }
-          #status {
-            color: #fff;
-            font-family: system-ui, sans-serif;
-            padding: 20px;
-          }
-          /* ]]> */
+        /* <![CDATA[ */
+        html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+        #status{color:#ccc;font:14px system-ui,sans-serif;padding:20px}
+        /* ]]> */
         </style>
-      </head>
-      <body>
-        <p id="status">Loading Mac OS…</p>
         <script>
         //<![CDATA[
-          (async function () {
-            var host = "cdn.jsdelivr.net";
-            try {
-              if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname))
-                host = location.hostname;
-            } catch (e) {}
-            var base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
-            var url = base + "index.html?t=" + Date.now();
-            var XHTML = "http://www.w3.org/1999/xhtml";
+        (async function(){
+          /*
+            Safari = the proxy UI (looks like Safari).
+            Backend = Opium infra (TongSherbet loader assets + sw.js + Wisp).
+            Must run inside this SVG document (not blob) so SW can control /~/ routes.
+          */
+          function status(t){
+            var el=document.getElementById("status");
+            if(el) el.textContent=t;
+            try{console.log("[lightspeed]",t);}catch(e){}
+          }
 
-            // In SVG foreignObject, document.body can be null — find body the hard way
-            var body = document.body
-              || document.getElementsByTagName("body")[0]
-              || document.documentElement;
-
-            var status = document.getElementById("status")
-              || document.querySelector("#status");
-
-            try {
-              var res = await fetch(url);
-              if (!res.ok) throw new Error("HTTP " + res.status);
-              var html = await res.text();
-
-              // inject base so relative assets load from CDN
-              html = html.replace(/<head[^>]*>/i, function (m) {
-                return m + '\n    <base href="' + base + '">';
-              });
-
-              // Create iframe in the XHTML namespace
-              var iframe = document.createElementNS(XHTML, "iframe");
-              iframe.setAttribute("style", "position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;");
-
-              // Load via blob URL
-              var blob = new Blob([html], { type: "text/html" });
-              var blobUrl = URL.createObjectURL(blob);
-              iframe.setAttribute("src", blobUrl);
-
-              if (!body) throw new Error("No body element found");
-              body.appendChild(iframe);
-
-              if (status) {
-                status.setAttribute("style", "display:none");
-              }
-
-            } catch (err) {
-              var msg = (err && err.message) ? err.message : String(err);
-              if (status) {
-                status.textContent = "Failed to load: " + msg;
-              } else if (body) {
-                var p = document.createElementNS(XHTML, "p");
-                p.setAttribute("style", "color:#fff;padding:20px;font-family:system-ui,sans-serif;");
-                p.textContent = "Failed to load: " + msg;
-                body.appendChild(p);
-              }
+          try {
+            var dir = location.pathname.replace(/[^/]+$/,"");
+            window.swPath = location.origin + dir + "sw.js";
+            if (location.pathname.indexOf("/gh/") < 0) {
+              window.swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
             }
-          })();
+            window.__NYX_SVG_PARENT = location.href;
+          } catch(e) {}
+
+          var pageUrl = new URL("index.html", location.href).href;
+          var baseHref = new URL("./", location.href).href;
+          status("Loading Safari proxy desktop…");
+
+          var html;
+          try {
+            var res = await fetch(pageUrl,{cache:"no-store",mode:"cors"});
+            if(!res.ok) throw new Error("HTTP "+res.status);
+            html = await res.text();
+          } catch(e) {
+            status("Failed to load index.html: "+e.message);
+            return;
+          }
+
+          var sw = String(window.swPath||"").replace(/\\/g,"\\\\").replace(/"/g,'\\"');
+          var parent = String(location.href).replace(/\\/g,"\\\\").replace(/"/g,'\\"');
+          html = html.replace(/<head[^>]*>/i, function(m){
+            return m + '<base href="'+baseHref+'">' +
+              '<script>window.__NYX_SVG_PARENT="'+parent+'";window.swPath="'+sw+'";<\/script>';
+          });
+
+          var parsed = new DOMParser().parseFromString(html,"text/html");
+          if(!document.querySelector("base")){
+            var b=document.createElement("base");
+            b.href=baseHref;
+            document.head.insertBefore(b,document.head.firstChild);
+          }
+          parsed.querySelectorAll("style,link[rel='stylesheet']").forEach(function(n){
+            try{document.head.appendChild(document.importNode(n,true));}catch(e){}
+          });
+          if(parsed.body){
+            document.body.innerHTML="";
+            Array.prototype.forEach.call(parsed.body.childNodes, function(n){
+              try{document.body.appendChild(document.importNode(n,true));}catch(e){}
+            });
+          }
+          var scripts=Array.prototype.slice.call(parsed.querySelectorAll("script"));
+          for(var i=0;i<scripts.length;i++){
+            if(i%25===0) status("Starting "+i+"/"+scripts.length+"…");
+            var orig=scripts[i];
+            await new Promise(function(resolve){
+              var done=false; function fin(){if(!done){done=true;resolve();}}
+              try{
+                var el=document.createElement("script");
+                if(orig.src){
+                  el.src=orig.src; el.async=false;
+                  el.onload=fin; el.onerror=fin;
+                  document.head.appendChild(el);
+                  setTimeout(fin,2500);
+                } else {
+                  el.textContent=orig.textContent||"";
+                  document.head.appendChild(el);
+                  fin();
+                }
+              }catch(e){fin();}
+            });
+          }
+          status("Ready");
+          console.log("[lightspeed] Safari proxy ready @", location.href, "swPath=", window.swPath);
+        })();
         //]]>
         </script>
+      </head>
+      <body>
+        <p id="status">Loading…</p>
       </body>
     </html>
   </foreignObject>
