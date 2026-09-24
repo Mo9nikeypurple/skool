@@ -13526,7 +13526,7 @@ window.setDesktopBackground = setDesktopBackground;
     
     
     /* ========== Scramjet bootstrap (HTTPS hosts) ========== */
-    console.log("[nyx] build 2026-09-24-sw-v6 — if you still see /sw.js requests, CDN is serving OLD index.html");
+    console.log("[nyx] build 2026-09-24-opium-svg-v8 — if you still see /sw.js requests, CDN is serving OLD index.html");
     /* Asset CDNs match index-36 TongSherbet/storage multi-mirror loader */
     window.__nyxSJ = window.__nyxSJ || { ready: false, starting: null, controller: null, frame: null, lastError: "" };
     var NYX_SW_CDN = "https://cdn.jsdelivr.net/gh/Mo9nikeypurple/skool@main/sw%20(4).js"; // Mo9nikeypurple/skool sw (4).js
@@ -13632,8 +13632,8 @@ window.setDesktopBackground = setDesktopBackground;
 
     
     async function nyxRegisterSW() {
-      // v6: ONLY full /gh/Mo9nikeypurple/skool…/sw.js URLs on the page's own host.
-      // Never request https://cdn.jsdelivr.net/sw.js (invalid — causes HTTP 400).
+      // OpiumBest/svg on jsDelivr: page URL is .../gh/USER/REPO/index.svg
+      // so relative sw.js → .../gh/USER/REPO/sw.js (VALID). Never use /sw.js root.
       await nyxDiscoverAssetsBase();
       var v = Math.floor(Date.now() / 3600000);
       var baseParam = "";
@@ -13642,96 +13642,76 @@ window.setDesktopBackground = setDesktopBackground;
         baseParam = encodeURIComponent(b64.split("").reverse().join(""));
       } catch (e) {}
 
-      var host = "cdn.jsdelivr.net";
-      try {
-        if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
-          host = location.hostname;
-        }
-      } catch (e) {}
+      function qs(u) {
+        return u + (u.indexOf("?") >= 0 ? "&" : "?") + "v=" + v + (baseParam ? "&base=" + baseParam : "");
+      }
 
-      // Exact valid paths only — same host as the page
-      var list = [
-        "https://" + host + "/gh/Mo9nikeypurple/skool@main/sw.js",
-        "https://" + host + "/gh/Mo9nikeypurple/skool/sw.js"
-      ];
-      // GitHub Pages
-      try {
-        if (/\.github\.io$/i.test(location.hostname)) {
-          var gp = location.pathname.replace(/[^/]+$/, "");
-          list.unshift(location.origin + gp + "sw.js");
-        }
-      } catch (e) {}
-      // Real document path when it already includes /gh/
-      try {
-        if (location.protocol !== "blob:" && /\/gh\/[^/]+\/[^/]+/i.test(location.pathname)) {
-          list.unshift(location.origin + location.pathname.replace(/[^/]+$/, "") + "sw.js");
-        }
-      } catch (e) {}
-
-      // Deduplicate + safety filter
-      var seen = {};
       var candidates = [];
-      list.forEach(function (u) {
+      function add(u) {
+        if (!u) return;
         try {
-          var path = new URL(u).pathname;
-          if (path === "/sw.js") return; // INVALID
-          if (/jsdelivr|b-cdn\.net/i.test(new URL(u).hostname) && path.indexOf("/gh/") < 0) return;
-          if (!seen[u]) { seen[u] = 1; candidates.push(u); }
+          var path = new URL(u, location.href).pathname;
+          // Reject CDN-root /sw.js (the bug you kept seeing)
+          if (path === "/sw.js" || path === "/sw%20(4).js") {
+            if (/jsdelivr|b-cdn\.net/i.test(new URL(u, location.href).hostname)) return;
+          }
+          if (/jsdelivr|b-cdn\.net/i.test(new URL(u, location.href).hostname) && path.indexOf("/gh/") < 0) return;
+          var abs = new URL(u, location.href).href;
+          if (candidates.indexOf(abs) < 0) candidates.push(abs);
         } catch (e) {}
-      });
+      }
 
-      console.log("[nyx] build 2026-09-24-sw-v6 SW candidates:", candidates);
+      // Primary: same directory as this document (SVG or HTML) — opium style
+      add("sw.js");
+      add("./sw.js");
+
+      // Explicit dir from pathname (…/gh/user/repo/ or …/gh/user/repo@main/)
+      try {
+        var dir = location.pathname.replace(/[^/]+$/, "");
+        if (dir && dir !== "/") add(location.origin + dir + "sw.js");
+      } catch (e) {}
+
+      // <base href> if present
+      try {
+        var b = document.querySelector("base[href]");
+        if (b && b.href) add(new URL("sw.js", b.href).href);
+      } catch (e) {}
+
+      console.log("[nyx] SW location=", location.href);
+      console.log("[nyx] SW candidates=", candidates);
 
       var lastErr = null;
       for (var i = 0; i < candidates.length; i++) {
-        var raw = candidates[i];
-        var url = raw + "?v=" + v + (baseParam ? "&base=" + baseParam : "");
+        var url = qs(candidates[i]);
         try {
-          // same-origin only
-          if (location.origin && new URL(url).origin !== location.origin && location.protocol !== "blob:") {
-            // blob: origin is the creating origin (jsdelivr host) — allow match on host
-            if (!(location.protocol === "blob:" && new URL(url).hostname === (location.hostname || host))) {
-              console.warn("[nyx] skip origin mismatch", url);
-              continue;
-            }
+          if (new URL(url).origin !== location.origin) {
+            console.warn("[nyx] skip other origin", url);
+            continue;
           }
-          if (location.protocol === "blob:") {
-            // blob pages inherit creator origin; require same hostname
-            try {
-              if (new URL(url).hostname !== host && new URL(url).hostname !== location.hostname) {
-                continue;
-              }
-            } catch (e) {}
-          }
-
           var probe = await fetch(url, { cache: "no-store" });
           if (!probe.ok) {
-            lastErr = new Error("HTTP " + probe.status + " @ " + raw);
-            console.warn("[nyx] probe fail", lastErr.message);
+            lastErr = new Error("HTTP " + probe.status + " " + candidates[i]);
+            console.warn("[nyx]", lastErr.message);
             continue;
           }
-          var body = await probe.text();
-          if (!body || body.length < 40) {
-            lastErr = new Error("empty @ " + raw);
-            continue;
-          }
+          var text = await probe.text();
+          if (!text || text.length < 40) continue;
 
           try {
-            var regs = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(regs.map(function (r) { return r.unregister().catch(function () {}); }));
+            var existing = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(existing.map(function (r) { return r.unregister().catch(function () {}); }));
           } catch (e) {}
 
-          var scope = "/gh/Mo9nikeypurple/skool@main/";
+          // Scope = directory containing the SVG/HTML (…/gh/user/repo/)
+          var scope = "./";
           try {
-            if (/\/gh\//i.test(location.pathname)) {
-              scope = location.pathname.replace(/[^/]+$/, "") || scope;
-            }
+            scope = location.pathname.replace(/[^/]+$/, "") || "./";
           } catch (e) {}
 
           var reg = await navigator.serviceWorker.register(url, { scope: scope, updateViaCache: "none" });
           await reg.update().catch(function () {});
           await navigator.serviceWorker.ready;
-          console.log("[nyx] SW registered OK", url);
+          console.log("[nyx] SW registered OK", url, "scope", scope);
           return reg;
         } catch (e) {
           lastErr = e;
@@ -13740,8 +13720,8 @@ window.setDesktopBackground = setDesktopBackground;
       }
 
       throw new Error(
-        (lastErr && lastErr.message ? lastErr.message : "no sw") +
-        " — Need https://" + host + "/gh/Mo9nikeypurple/skool@main/sw.js (not /sw.js). If console lacks 'build 2026-09-24-sw-v6', jsDelivr is caching OLD index.html — re-commit or open with a new query string."
+        (lastErr && lastErr.message ? lastErr.message : "sw.js not found") +
+        " — Open via https://cdn.jsdelivr.net/gh/Mo9nikeypurple/skool/index.svg (like OpiumBest/svg). sw.js must sit next to index.svg in the repo."
       );
     }
 
