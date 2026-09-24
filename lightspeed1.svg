@@ -1,183 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-  <foreignObject width="100%" height="100%">
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;background:#000;">
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <html xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;margin:0;padding:0;background:#000;">
       <head>
-        <script>
-        //<![CDATA[
-        /* Exact OpiumBest polyfill */
-        (function(){
-          var XHTML_NS="http://www.w3.org/1999/xhtml";
-          var root=document.querySelector("foreignObject").firstElementChild;
-          var originalCreateElement=document.createElement.bind(document);
-          var originalCreateElementNS=document.createElementNS.bind(document);
-          Object.defineProperty(document,"head",{get:function(){return root.querySelector("head");},configurable:true});
-          Object.defineProperty(document,"body",{get:function(){return root.querySelector("body");},configurable:true});
-          Object.defineProperty(document,"documentElement",{get:function(){return root;},configurable:true});
-          document.createElement=function(tagName,options){
-            if(typeof tagName==="string")return originalCreateElementNS(XHTML_NS,tagName,options);
-            return originalCreateElement(tagName,options);
-          };
-          document.createElementNS=function(namespaceURI,qualifiedName,options){
-            if(namespaceURI==null||namespaceURI===XHTML_NS)return originalCreateElementNS(XHTML_NS,qualifiedName,options);
-            return originalCreateElementNS(namespaceURI,qualifiedName,options);
-          };
-        })();
-        //]]>
-        </script>
-        <style>
-        /* <![CDATA[ */
-        html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
-        #status{color:#ccc;font:14px system-ui,sans-serif;padding:20px}
-        /* ]]> */
-        </style>
         <meta charset="UTF-8"/>
         <title>Mac OS</title>
-        <script>
-        //<![CDATA[
-
-(function(){
-  var mirrors=[
-    "https://cdn.jsdelivr.net/gh/TongSherbet/storage/",
-    "https://fastly.jsdelivr.net/gh/TongSherbet/storage/",
-    "https://gcore.jsdelivr.net/gh/TongSherbet/storage/",
-    "https://quantil.jsdelivr.net/gh/TongSherbet/storage/",
-    "https://testingcf.jsdelivr.net/gh/TongSherbet/storage/",
-    "https://jsdelivr.b-cdn.net/gh/TongSherbet/storage/",
-    "https://cdn.statically.io/gh/TongSherbet/storage@main/",
-    "https://raw.githubusercontent.com/TongSherbet/storage/main/"
-  ];
-  var hour=Math.floor(Date.now()/3600000);
-  // CRITICAL: SW must be same host as this page (cdn vs fastly)
-  try {
-    var repoSw = location.origin + location.pathname.replace(/[^/]+$/, "") + "sw.js";
-    if (/jsdelivr|b-cdn\.net/i.test(location.hostname) && location.pathname.indexOf("/gh/") >= 0) {
-      window.swPath = repoSw;
-    } else if (/jsdelivr|b-cdn\.net/i.test(location.hostname)) {
-      window.swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
-    } else {
-      window.swPath = repoSw;
-    }
-  } catch (e) {
-    window.swPath = "sw.js";
-  }
-  console.log("[opium-boot] swPath=", window.swPath, "location=", location.href);
-  (async function(){
-    for (var i = 0; i < mirrors.length; i++) {
-      try {
-        var res = await fetch(mirrors[i] + "loader.js?" + hour + "&raw", { cache: "no-store", signal: AbortSignal.timeout(8000) });
-        if (!res.ok) continue;
-        var txt = await res.text();
-        if (!txt || txt.length < 500 || !/function|serviceWorker/.test(txt)) continue;
-        window.assetsBase = mirrors[i];
-        var s = document.createElement("script");
-        s.textContent = txt;
-        document.head.appendChild(s);
-        return;
-      } catch (e) {}
-    }
-    console.warn("[opium-boot] loader.js not found — Mac OS SW will register alone");
-  })();
-})();
-
-        //]]>
-        </script>
-        <script>
-        //<![CDATA[
-        (async function () {
-          // NO BLOB. Inject Mac OS into this SVG document (Opium pattern).
-          function status(t) {
-            var el = document.getElementById("status");
-            if (el) el.textContent = t;
-            try { console.log("[svg]", t); } catch (e) {}
+        <style>
+          /* <![CDATA[ */
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
           }
-
-          // Force SW path on THIS origin only (fixes cdn vs fastly error)
-          try {
-            var dir = location.pathname.replace(/[^/]+$/, "");
-            if (/\/gh\//.test(dir)) {
-              window.swPath = location.origin + dir + "sw.js";
-            } else {
-              window.swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
-            }
-            console.log("[svg] locked swPath", window.swPath);
-          } catch (e) {}
-
-          var pageUrl = new URL("index.html", location.href).href;
-          var baseHref = new URL("./", location.href).href;
-          status("Loading Mac OS into SVG (no blob)…");
-
-          var html;
-          try {
-            var res = await fetch(pageUrl, { cache: "no-store", mode: "cors" });
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            html = await res.text();
-          } catch (e) {
-            status("Fetch failed: " + e.message + " @ " + pageUrl);
-            return;
+          iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
           }
-
-          // Inject parent + swPath so Mac OS never invents fastly URL
-          var sw = String(window.swPath || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-          var parent = String(location.href).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-          html = html.replace(/<head[^>]*>/i, function (m) {
-            return m +
-              '<base href="' + baseHref + '">' +
-              '<script>window.__NYX_SVG_PARENT="' + parent + '";window.swPath="' + sw + '";window.assetsBase=window.assetsBase||"https://cdn.jsdelivr.net/gh/TongSherbet/storage/";<\/script>';
-          });
-
-          var parsed = new DOMParser().parseFromString(html, "text/html");
-
-          if (!document.querySelector("base")) {
-            var b = document.createElement("base");
-            b.href = baseHref;
-            document.head.insertBefore(b, document.head.firstChild);
+          #status {
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            padding: 20px;
           }
-
-          parsed.querySelectorAll("style, link[rel='stylesheet']").forEach(function (n) {
-            try { document.head.appendChild(document.importNode(n, true)); } catch (e) {}
-          });
-
-          if (parsed.body) {
-            document.body.innerHTML = "";
-            Array.prototype.slice.call(parsed.body.childNodes).forEach(function (n) {
-              try { document.body.appendChild(document.importNode(n, true)); } catch (e) {}
-            });
-          }
-
-          var scripts = Array.prototype.slice.call(parsed.querySelectorAll("script"));
-          status("Scripts 0/" + scripts.length);
-          for (var i = 0; i < scripts.length; i++) {
-            if (i % 20 === 0) status("Scripts " + i + "/" + scripts.length);
-            var orig = scripts[i];
-            await new Promise(function (resolve) {
-              var done = false;
-              function fin() { if (!done) { done = true; resolve(); } }
-              try {
-                var el = document.createElement("script");
-                if (orig.src) {
-                  el.src = orig.src;
-                  el.async = false;
-                  el.onload = fin;
-                  el.onerror = fin;
-                  document.head.appendChild(el);
-                  setTimeout(fin, 2500);
-                } else {
-                  el.textContent = orig.textContent || "";
-                  document.head.appendChild(el);
-                  fin();
-                }
-              } catch (e) { fin(); }
-            });
-          }
-          status("Ready");
-          console.log("[svg] DONE location=", location.href, "swPath=", window.swPath);
-        })();
-        //]]>
-        </script>
+          /* ]]> */
+        </style>
       </head>
       <body>
         <p id="status">Loading Mac OS…</p>
+        <script>
+        //<![CDATA[
+          (async function () {
+            var host = "cdn.jsdelivr.net";
+            try {
+              if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname))
+                host = location.hostname;
+            } catch (e) {}
+            var base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
+            var url = base + "index.html?t=" + Date.now();
+            var XHTML = "http://www.w3.org/1999/xhtml";
+
+            // In SVG foreignObject, document.body can be null — find body the hard way
+            var body = document.body
+              || document.getElementsByTagName("body")[0]
+              || document.documentElement;
+
+            var status = document.getElementById("status")
+              || document.querySelector("#status");
+
+            try {
+              var res = await fetch(url);
+              if (!res.ok) throw new Error("HTTP " + res.status);
+              var html = await res.text();
+
+              // inject base so relative assets load from CDN
+              html = html.replace(/<head[^>]*>/i, function (m) {
+                return m + '\n    <base href="' + base + '">';
+              });
+
+              // Create iframe in the XHTML namespace
+              var iframe = document.createElementNS(XHTML, "iframe");
+              iframe.setAttribute("style", "position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;");
+
+              // Load via blob URL
+              var blob = new Blob([html], { type: "text/html" });
+              var blobUrl = URL.createObjectURL(blob);
+              iframe.setAttribute("src", blobUrl);
+
+              if (!body) throw new Error("No body element found");
+              body.appendChild(iframe);
+
+              if (status) {
+                status.setAttribute("style", "display:none");
+              }
+
+            } catch (err) {
+              var msg = (err && err.message) ? err.message : String(err);
+              if (status) {
+                status.textContent = "Failed to load: " + msg;
+              } else if (body) {
+                var p = document.createElementNS(XHTML, "p");
+                p.setAttribute("style", "color:#fff;padding:20px;font-family:system-ui,sans-serif;");
+                p.textContent = "Failed to load: " + msg;
+                body.appendChild(p);
+              }
+            }
+          })();
+        //]]>
+        </script>
       </body>
     </html>
   </foreignObject>
