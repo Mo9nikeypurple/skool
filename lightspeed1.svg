@@ -1,74 +1,209 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg"
-     xmlns:xhtml="http://www.w3.org/1999/xhtml"
-     width="100%" height="100%"
-     style="position:fixed;inset:0;width:100vw;height:100vh;background:#111;">
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;background:#000;">
   <foreignObject x="0" y="0" width="100%" height="100%">
-    <xhtml:div id="mount" style="width:100%;height:100%;margin:0;padding:0;background:#111;color:#eee;font:14px system-ui,sans-serif;">
-      <xhtml:p id="status" style="padding:20px;margin:0;">Loading Mac OS…</xhtml:p>
-    </xhtml:div>
-  </foreignObject>
-  <script type="text/javascript">
-    //<![CDATA[
-    (async function () {
-      // Script is on the SVG root (not inside foreignObject) so it actually runs.
-      // jsDelivr serves .html as text/plain — must load via blob type text/html to RENDER.
-      function $(id) {
-        return document.getElementById(id);
-      }
-      function setStatus(t) {
-        var s = $("status");
-        if (s) s.textContent = t;
-      }
-
-      var host = "cdn.jsdelivr.net";
-      try {
-        if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
-          host = location.hostname;
-        }
-      } catch (e) {}
-
-      var base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
-      var pageUrl = base + "index.html?t=" + Date.now();
-
-      try {
-        setStatus("Fetching " + pageUrl + " …");
-        var res = await fetch(pageUrl, { cache: "no-store", mode: "cors" });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        var html = await res.text();
-        if (!html || html.length < 100) throw new Error("Empty index.html");
-
-        // Force a full document
-        if (!/<!DOCTYPE/i.test(html) && !/<html/i.test(html)) {
-          html = "<!DOCTYPE html><html><head></head><body>" + html + "</body></html>";
-        }
-
-        // <base> so relative assets resolve on this CDN host
-        if (!/<base\s/i.test(html)) {
-          html = html.replace(/<head([^>]*)>/i, function (m, a) {
-            return "<head" + a + ">\n<base href=\"" + base + "\">";
+    <html xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;margin:0;padding:0;background:#000;">
+      <head>
+        <meta charset="UTF-8"/>
+        <title>Mac OS</title>
+        <script>
+        //<![CDATA[
+        /* Opium-style XHTML polyfill — required for scripts inside SVG on jsDelivr */
+        (function () {
+          var XHTML_NS = "http://www.w3.org/1999/xhtml";
+          var fo = document.querySelector("foreignObject");
+          var root = fo && fo.firstElementChild;
+          if (!root) return;
+          var origCE = document.createElement.bind(document);
+          var origCENS = document.createElementNS.bind(document);
+          Object.defineProperty(document, "head", {
+            get: function () { return root.querySelector("head"); },
+            configurable: true
           });
-        }
+          Object.defineProperty(document, "body", {
+            get: function () { return root.querySelector("body"); },
+            configurable: true
+          });
+          Object.defineProperty(document, "documentElement", {
+            get: function () { return root; },
+            configurable: true
+          });
+          document.createElement = function (tag, opts) {
+            if (typeof tag === "string") return origCENS(XHTML_NS, tag, opts);
+            return origCE(tag, opts);
+          };
+          document.createElementNS = function (ns, name, opts) {
+            if (ns == null || ns === XHTML_NS) return origCENS(XHTML_NS, name, opts);
+            return origCENS(ns, name, opts);
+          };
+        })();
+        //]]>
+        </script>
+        <style>
+          /* <![CDATA[ */
+          html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden; background: #000;
+          }
+          #status {
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            padding: 20px;
+            font-size: 14px;
+          }
+          /* ]]> */
+        </style>
+        <script>
+        //<![CDATA[
+          (async function () {
+            /*
+              SCHOOL / jsDelivr ONLY (no githack).
+              Same pattern as OpiumBest/svg on cdn.jsdelivr.net:
+              - Stay on this SVG URL as location
+              - sw.js resolves to …/gh/USER/REPO/sw.js (valid)
+              - Inject Mac OS into THIS document (not blob:) so SW can control TikTok/Scramjet
+            */
+            function status(msg) {
+              var el = document.getElementById("status");
+              if (el) el.textContent = msg;
+              try { console.log("[school-svg]", msg); } catch (e) {}
+            }
 
-        // CRITICAL: text/html so the browser RENDers instead of showing source text
-        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
-        var blobUrl = URL.createObjectURL(blob);
+            var host = "cdn.jsdelivr.net";
+            try {
+              if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
+                host = location.hostname;
+              }
+            } catch (e) {}
 
-        var mount = $("mount");
-        if (!mount) throw new Error("No #mount");
+            // Directory of this SVG on jsDelivr, e.g. /gh/Mo9nikeypurple/skool@main/
+            var base;
+            try {
+              base = new URL("./", location.href).href;
+            } catch (e) {
+              base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
+            }
+            // Prefer @main path if location has no @ (stable file list)
+            if (base.indexOf("/gh/Mo9nikeypurple/skool/") >= 0 && base.indexOf("@") < 0) {
+              // keep as-is; both work on jsDelivr
+            }
 
-        var iframe = document.createElementNS("http://www.w3.org/1999/xhtml", "iframe");
-        iframe.setAttribute("src", blobUrl);
-        iframe.setAttribute("allow", "fullscreen; autoplay; encrypted-media; clipboard-read; clipboard-write");
-        iframe.setAttribute("style", "position:fixed;top:0;left:0;width:100%;height:100%;border:0;margin:0;padding:0;background:#000;");
+            // Opium: absolute sw path beside this SVG
+            try {
+              window.swPath = new URL("sw.js", location.href).href;
+              // never allow CDN-root /sw.js
+              var sp = new URL(window.swPath);
+              if (sp.pathname === "/sw.js" || (sp.pathname.indexOf("/gh/") < 0 && /jsdelivr/i.test(sp.hostname))) {
+                window.swPath = "https://" + host + "/gh/Mo9nikeypurple/skool/sw.js";
+              }
+            } catch (e) {
+              window.swPath = "https://" + host + "/gh/Mo9nikeypurple/skool/sw.js";
+            }
 
-        mount.innerHTML = "";
-        mount.appendChild(iframe);
-      } catch (err) {
-        var msg = (err && err.message) ? err.message : String(err);
-        setStatus("Failed: " + msg + " — Try opening " + pageUrl + " (may show as text on jsDelivr; use GitHub Pages for best results)");
-      }
-    })();
-    //]]>
-  </script>
+            var pageUrl = new URL("index.html", location.href).href;
+            status("Fetching Mac OS (school/jsDelivr mode)…");
+
+            var html;
+            try {
+              var res = await fetch(pageUrl, { cache: "no-store", mode: "cors" });
+              if (!res.ok) throw new Error("HTTP " + res.status + " for " + pageUrl);
+              html = await res.text();
+              if (!html || html.length < 500) throw new Error("index.html missing or empty");
+            } catch (err) {
+              status("Failed: " + ((err && err.message) || err) + " — need index.html next to this SVG on jsDelivr");
+              return;
+            }
+
+            status("Injecting into SVG document (" + Math.round(html.length / 1024) + " KB)…");
+
+            // Tell Mac OS we are the SVG parent location (for SW)
+            window.__NYX_SVG_PARENT = location.href;
+            html = html.replace(/<head[^>]*>/i, function (m) {
+              return m +
+                '\n<base href="' + base + '">' +
+                '\n<script>window.__NYX_SVG_PARENT="' + String(location.href).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '";' +
+                'window.swPath="' + String(window.swPath).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '";<\/script>';
+            });
+
+            var parsed;
+            try {
+              parsed = new DOMParser().parseFromString(html, "text/html");
+            } catch (e) {
+              status("Parse failed: " + e.message);
+              return;
+            }
+
+            // base tag
+            if (!document.querySelector("base")) {
+              var b = document.createElement("base");
+              b.setAttribute("href", base);
+              document.head.insertBefore(b, document.head.firstChild);
+            }
+
+            // CSS
+            try {
+              parsed.querySelectorAll("style, link[rel='stylesheet']").forEach(function (node) {
+                try { document.head.appendChild(document.importNode(node, true)); } catch (e) {}
+              });
+            } catch (e) {}
+
+            // Body
+            try {
+              if (parsed.body) {
+                document.body.innerHTML = "";
+                var kids = Array.prototype.slice.call(parsed.body.childNodes);
+                for (var i = 0; i < kids.length; i++) {
+                  try { document.body.appendChild(document.importNode(kids[i], true)); } catch (e) {}
+                }
+              }
+            } catch (e) {
+              status("Body inject failed: " + e.message);
+              return;
+            }
+
+            // Scripts with hard timeout so we never stick on "Loading…"
+            var scripts = [];
+            try { scripts = Array.prototype.slice.call(parsed.querySelectorAll("script")); } catch (e) {}
+            status("Running scripts 0/" + scripts.length + "…");
+
+            for (var s = 0; s < scripts.length; s++) {
+              if (s % 15 === 0) status("Running scripts " + s + "/" + scripts.length + "…");
+              var orig = scripts[s];
+              await new Promise(function (resolve) {
+                var done = false;
+                function finish() { if (!done) { done = true; resolve(); } }
+                try {
+                  var el = document.createElement("script");
+                  if (orig && orig.src) {
+                    el.src = orig.src;
+                    el.async = false;
+                    el.onload = finish;
+                    el.onerror = finish;
+                    document.head.appendChild(el);
+                    setTimeout(finish, 3000);
+                  } else {
+                    el.textContent = (orig && orig.textContent) ? orig.textContent : "";
+                    document.head.appendChild(el);
+                    finish();
+                  }
+                } catch (e) {
+                  finish();
+                }
+              });
+            }
+
+            status("Ready — Safari + TikTok need SW at " + window.swPath);
+            try {
+              console.log("[school-svg] location=", location.href);
+              console.log("[school-svg] swPath=", window.swPath);
+            } catch (e) {}
+          })();
+        //]]>
+        </script>
+      </head>
+      <body>
+        <p id="status">Loading Mac OS…</p>
+      </body>
+    </html>
+  </foreignObject>
 </svg>

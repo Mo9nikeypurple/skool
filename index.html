@@ -13641,50 +13641,61 @@ window.setDesktopBackground = setDesktopBackground;
 
     
     async function nyxRegisterSW() {
-      // Exact Opium/TongSherbet formula:
-      // swUrl = swPath + "?base=" + encodeURIComponent(btoa(assetsBase).split("").reverse().join("")) + "&v=" + hour
+      // School / jsDelivr / Opium pattern: page is …/gh/USER/REPO/index.svg (or injected into it).
+      // sw.js MUST be …/gh/USER/REPO/sw.js on the SAME host — never /sw.js at CDN root.
       await nyxDiscoverAssetsBase();
       var assetsBase = NYX_ASSETS || window.assetsBase || "https://cdn.jsdelivr.net/gh/TongSherbet/storage/";
       window.assetsBase = assetsBase;
 
-      var swPath = window.swPath || "sw.js";
+      var host = location.hostname || "cdn.jsdelivr.net";
+      var swPath = window.swPath || null;
+
       try {
-        // Prefer absolute URL beside this document (SVG or HTML on /gh/user/repo/)
-        if (!window.swPath || window.swPath === "sw.js") {
-          swPath = new URL("sw.js", location.href).href;
-        }
-        // blob/about → parent SVG URL (CDN Opium pattern)
-        if (/^(blob:|about:)/i.test(String(location.href)) || /srcdoc/i.test(String(location.href))) {
-          var parentHref = window.__NYX_SVG_PARENT;
-          if (!parentHref && window.parent && window.parent !== window) {
-            try { parentHref = window.parent.location.href; } catch (e) {}
-          }
-          if (parentHref) swPath = new URL("sw.js", parentHref).href;
-        }
-        // Guard: jsDelivr root /sw.js is invalid
-        var u = new URL(swPath, location.href);
-        if (/jsdelivr\.net$/i.test(u.hostname) && u.pathname.indexOf("/gh/") < 0) {
-          swPath = u.origin + "/gh/Mo9nikeypurple/skool/sw.js";
-        }
+        if (!swPath) swPath = new URL("sw.js", location.href).href;
       } catch (e) {
         swPath = "sw.js";
       }
+
+      // If somehow root /sw.js, force repo path on this host
+      try {
+        var u = new URL(swPath, location.href);
+        if (/jsdelivr|b-cdn\.net/i.test(u.hostname) && (u.pathname === "/sw.js" || u.pathname.indexOf("/gh/") < 0)) {
+          // Try derive from current path: /gh/user/repo@main/file → /gh/user/repo@main/sw.js
+          var m = location.pathname.match(/^(.*?\/gh\/[^/]+\/[^/]+(?:@[^/]+)?\/)/);
+          if (m) {
+            swPath = location.origin + m[1] + "sw.js";
+          } else {
+            swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
+          }
+        }
+      } catch (e) {}
 
       var swVersion = Math.floor(Date.now() / 3600000);
       var baseQ = encodeURIComponent(btoa(assetsBase).split("").reverse().join(""));
       var swUrl = swPath + (String(swPath).indexOf("?") >= 0 ? "&" : "?") + "base=" + baseQ + "&v=" + swVersion;
 
-      console.log("[nyx] Opium SW", swUrl, "at", location.href);
+      console.log("[nyx] school SW register", swUrl);
+      console.log("[nyx] location", location.href);
+
+      var probe = await fetch(swUrl, { cache: "no-store" });
+      if (!probe.ok) {
+        throw new Error("sw.js HTTP " + probe.status + " at " + swUrl + " — upload sw.js next to the SVG on jsDelivr");
+      }
 
       try {
         var existing = await navigator.serviceWorker.getRegistrations();
         await Promise.all(existing.map(function (r) { return r.unregister().catch(function () {}); }));
       } catch (e) {}
 
-      var reg = await navigator.serviceWorker.register(swUrl);
+      var scope = "./";
+      try {
+        scope = location.pathname.replace(/[^/]+$/, "") || "./";
+      } catch (e) {}
+
+      var reg = await navigator.serviceWorker.register(swUrl, { scope: scope, updateViaCache: "none" });
       await reg.update().catch(function () {});
       await navigator.serviceWorker.ready;
-      console.log("[nyx] SW ready");
+      console.log("[nyx] SW ready", swUrl, "scope", scope);
       return reg;
     }
 
