@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <foreignObject width="100%" height="100%">
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+      <head>
+        <script>
+        //<![CDATA[
+        /* OpiumBest/svg document polyfill — required for jsDelivr SVG */
+        (function(){
+          var XHTML_NS="http://www.w3.org/1999/xhtml";
+          var root=document.querySelector("foreignObject").firstElementChild;
+          var originalCreateElement=document.createElement.bind(document);
+          var originalCreateElementNS=document.createElementNS.bind(document);
+          Object.defineProperty(document,"head",{get:function(){return root.querySelector("head");},configurable:true});
+          Object.defineProperty(document,"body",{get:function(){return root.querySelector("body");},configurable:true});
+          Object.defineProperty(document,"documentElement",{get:function(){return root;},configurable:true});
+          document.createElement=function(tagName,options){
+            if(typeof tagName==="string"){return originalCreateElementNS(XHTML_NS,tagName,options);}
+            return originalCreateElement(tagName,options);
+          };
+          document.createElementNS=function(namespaceURI,qualifiedName,options){
+            if(namespaceURI==null||namespaceURI===XHTML_NS){return originalCreateElementNS(XHTML_NS,qualifiedName,options);}
+            return originalCreateElementNS(namespaceURI,qualifiedName,options);
+          };
+        })();
+        //]]>
+        </script>
+        <style>
+        /* <![CDATA[ */
+          html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+          #boot{color:#ccc;font:14px system-ui,sans-serif;padding:20px}
+        /* ]]> */
+        </style>
+        <meta charset="UTF-8"/>
+        <title>Mac OS</title>
+        <script>
+        //<![CDATA[
+
+(function(){
+  const devHosts=["localhost","127.0.0.1","ngrok-free"];
+  if(devHosts.includes(location.hostname)||devHosts.includes(location.hostname.split(".").at(-2)||location.hostname)){
+    const s=document.createElement("script");
+    s.src="/stuff/loader.js";
+    s.onload=()=>s.remove();
+    document.head.appendChild(s);
+  } else {
+    const mirrors=[
+      "https://cdn.jsdelivr.net/gh/TongSherbet/storage/",
+      "https://quantil.jsdelivr.net/gh/TongSherbet/storage/",
+      "https://fastly.jsdelivr.net/gh/TongSherbet/storage/",
+      "https://testingcf.jsdelivr.net/gh/TongSherbet/storage/",
+      "https://gcore.jsdelivr.net/gh/TongSherbet/storage/",
+      "https://originfastly.jsdelivr.net/gh/TongSherbet/storage/",
+      "https://jsdelivr.b-cdn.net/gh/TongSherbet/storage/",
+      "https://cdn.statically.io/gh/TongSherbet/storage@main/",
+      "https://rawcdn.githack.com/TongSherbet/storage/main/",
+      "https://raw.githack.com/TongSherbet/storage/main/",
+      "https://cdn.staticdelivr.com/gh/TongSherbet/storage/main/",
+      "https://raw.githubusercontent.com/TongSherbet/storage/main/",
+      "https://raw.esm.sh/gh/TongSherbet/storage/",
+      "https://esm.sh/gh/TongSherbet/storage/"
+    ];
+    const hour=Math.floor(Date.now()/3600000);
+    function looksLikeJS(txt){
+      if(!txt||txt.length<100)return false;
+      return /\b(function|const|let|var|class|if|return|async|import)\b/.test(txt);
+    }
+    (async()=>{
+      for(const base of mirrors){
+        try{
+          const res=await fetch(base+"loader.js?"+hour+"&raw",{cache:"no-store",signal:AbortSignal.timeout(8000)});
+          if(!res.ok)continue;
+          const txt=await res.text();
+          if(!looksLikeJS(txt))continue;
+          window.assetsBase=base;
+          // Opium-style SW path: absolute URL next to THIS document (the SVG on jsDelivr)
+          try{
+            window.swPath=new URL("sw.js", location.href).href;
+          }catch(e){ window.swPath="sw.js"; }
+          const el=document.createElement("script");
+          el.textContent=txt;
+          document.head.appendChild(el);
+          return;
+        }catch(e){ continue; }
+      }
+      console.error("[opium-boot] failed to load loader.js");
+    })();
+  }
+})();
+
+        //]]>
+        </script>
+        <script>
+        //<![CDATA[
+        /* After opium boot starts, inject Mac OS into this SAME document
+           so location stays …/index.svg and SW at …/sw.js (Opium CDN pattern). */
+        (async function(){
+          function status(t){
+            var b=document.getElementById("boot");
+            if(b) b.textContent=t;
+            try{console.log("[macos-svg]",t);}catch(e){}
+          }
+          var pageUrl=new URL("index.html", location.href).href;
+          var baseHref=new URL("./", location.href).href;
+          status("Loading Mac OS from "+pageUrl);
+
+          var html;
+          try{
+            var res=await fetch(pageUrl,{cache:"no-store",mode:"cors"});
+            if(!res.ok) throw new Error("HTTP "+res.status);
+            html=await res.text();
+          }catch(e){
+            status("Failed to fetch index.html: "+e.message);
+            return;
+          }
+          status("Injecting Mac OS ("+Math.round(html.length/1024)+" KB) into SVG document…");
+
+          var parsed=new DOMParser().parseFromString(html,"text/html");
+
+          // base for relative assets
+          if(!document.querySelector("base")){
+            var base=document.createElement("base");
+            base.href=baseHref;
+            document.head.insertBefore(base, document.head.firstChild);
+          }
+
+          // styles
+          parsed.querySelectorAll("style, link[rel='stylesheet']").forEach(function(node){
+            try{ document.head.appendChild(document.importNode(node,true)); }catch(e){}
+          });
+
+          // body content
+          if(parsed.body){
+            var boot=document.getElementById("boot");
+            document.body.innerHTML="";
+            Array.from(parsed.body.childNodes).forEach(function(n){
+              try{ document.body.appendChild(document.importNode(n,true)); }catch(e){}
+            });
+          }
+
+          // scripts: external first (with timeout), then a batch of inline
+          var scripts=Array.from(parsed.querySelectorAll("script"));
+          status("Running "+scripts.length+" scripts…");
+          for(var i=0;i<scripts.length;i++){
+            var orig=scripts[i];
+            await new Promise(function(resolve){
+              var done=false;
+              function finish(){ if(!done){ done=true; resolve(); } }
+              var el=document.createElement("script");
+              if(orig.src){
+                el.src=orig.src;
+                el.async=false;
+                el.onload=finish;
+                el.onerror=finish;
+                document.head.appendChild(el);
+                setTimeout(finish, 4000);
+              } else {
+                try{ el.textContent=orig.textContent||""; document.head.appendChild(el); }catch(e){}
+                finish();
+              }
+            });
+            if(i%20===0) status("Scripts "+i+"/"+scripts.length+"…");
+          }
+          status("Ready");
+          try{ console.log("[macos-svg] location=",location.href,"swPath=",window.swPath||new URL("sw.js",location.href).href); }catch(e){}
+        })();
+        //]]>
+        </script>
+      </head>
+      <body>
+        <p id="boot">Loading Mac OS…</p>
+      </body>
+    </html>
+  </foreignObject>
+</svg>
