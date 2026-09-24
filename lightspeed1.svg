@@ -1,203 +1,178 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;background:#000;">
-  <foreignObject x="0" y="0" width="100%" height="100%">
-    <html xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;margin:0;padding:0;background:#000;">
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <foreignObject width="100%" height="100%">
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
       <head>
-        <meta charset="UTF-8"/>
-        <title>Mac OS</title>
         <script>
         //<![CDATA[
-        /* Opium-style XHTML polyfill — required for scripts inside SVG on jsDelivr */
-        (function () {
-          var XHTML_NS = "http://www.w3.org/1999/xhtml";
-          var fo = document.querySelector("foreignObject");
-          var root = fo && fo.firstElementChild;
-          if (!root) return;
-          var origCE = document.createElement.bind(document);
-          var origCENS = document.createElementNS.bind(document);
-          Object.defineProperty(document, "head", {
-            get: function () { return root.querySelector("head"); },
-            configurable: true
-          });
-          Object.defineProperty(document, "body", {
-            get: function () { return root.querySelector("body"); },
-            configurable: true
-          });
-          Object.defineProperty(document, "documentElement", {
-            get: function () { return root; },
-            configurable: true
-          });
-          document.createElement = function (tag, opts) {
-            if (typeof tag === "string") return origCENS(XHTML_NS, tag, opts);
-            return origCE(tag, opts);
+        /* Exact OpiumBest polyfill */
+        (function(){
+          var XHTML_NS="http://www.w3.org/1999/xhtml";
+          var root=document.querySelector("foreignObject").firstElementChild;
+          var originalCreateElement=document.createElement.bind(document);
+          var originalCreateElementNS=document.createElementNS.bind(document);
+          Object.defineProperty(document,"head",{get:function(){return root.querySelector("head");},configurable:true});
+          Object.defineProperty(document,"body",{get:function(){return root.querySelector("body");},configurable:true});
+          Object.defineProperty(document,"documentElement",{get:function(){return root;},configurable:true});
+          document.createElement=function(tagName,options){
+            if(typeof tagName==="string")return originalCreateElementNS(XHTML_NS,tagName,options);
+            return originalCreateElement(tagName,options);
           };
-          document.createElementNS = function (ns, name, opts) {
-            if (ns == null || ns === XHTML_NS) return origCENS(XHTML_NS, name, opts);
-            return origCENS(ns, name, opts);
+          document.createElementNS=function(namespaceURI,qualifiedName,options){
+            if(namespaceURI==null||namespaceURI===XHTML_NS)return originalCreateElementNS(XHTML_NS,qualifiedName,options);
+            return originalCreateElementNS(namespaceURI,qualifiedName,options);
           };
         })();
         //]]>
         </script>
         <style>
-          /* <![CDATA[ */
-          html, body {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            overflow: hidden; background: #000;
-          }
-          #status {
-            color: #fff;
-            font-family: system-ui, sans-serif;
-            padding: 20px;
-            font-size: 14px;
-          }
-          /* ]]> */
+        /* <![CDATA[ */
+        html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+        #status{color:#ccc;font:14px system-ui,sans-serif;padding:20px}
+        /* ]]> */
         </style>
+        <meta charset="UTF-8"/>
+        <title>Mac OS</title>
         <script>
         //<![CDATA[
-          (async function () {
-            /*
-              SCHOOL / jsDelivr ONLY (no githack).
-              Same pattern as OpiumBest/svg on cdn.jsdelivr.net:
-              - Stay on this SVG URL as location
-              - sw.js resolves to …/gh/USER/REPO/sw.js (valid)
-              - Inject Mac OS into THIS document (not blob:) so SW can control TikTok/Scramjet
-            */
-            function status(msg) {
-              var el = document.getElementById("status");
-              if (el) el.textContent = msg;
-              try { console.log("[school-svg]", msg); } catch (e) {}
+
+(function(){
+  var mirrors=[
+    "https://cdn.jsdelivr.net/gh/TongSherbet/storage/",
+    "https://fastly.jsdelivr.net/gh/TongSherbet/storage/",
+    "https://gcore.jsdelivr.net/gh/TongSherbet/storage/",
+    "https://quantil.jsdelivr.net/gh/TongSherbet/storage/",
+    "https://testingcf.jsdelivr.net/gh/TongSherbet/storage/",
+    "https://jsdelivr.b-cdn.net/gh/TongSherbet/storage/",
+    "https://cdn.statically.io/gh/TongSherbet/storage@main/",
+    "https://raw.githubusercontent.com/TongSherbet/storage/main/"
+  ];
+  var hour=Math.floor(Date.now()/3600000);
+  // CRITICAL: SW must be same host as this page (cdn vs fastly)
+  try {
+    var repoSw = location.origin + location.pathname.replace(/[^/]+$/, "") + "sw.js";
+    if (/jsdelivr|b-cdn\.net/i.test(location.hostname) && location.pathname.indexOf("/gh/") >= 0) {
+      window.swPath = repoSw;
+    } else if (/jsdelivr|b-cdn\.net/i.test(location.hostname)) {
+      window.swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
+    } else {
+      window.swPath = repoSw;
+    }
+  } catch (e) {
+    window.swPath = "sw.js";
+  }
+  console.log("[opium-boot] swPath=", window.swPath, "location=", location.href);
+  (async function(){
+    for (var i = 0; i < mirrors.length; i++) {
+      try {
+        var res = await fetch(mirrors[i] + "loader.js?" + hour + "&raw", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+        if (!res.ok) continue;
+        var txt = await res.text();
+        if (!txt || txt.length < 500 || !/function|serviceWorker/.test(txt)) continue;
+        window.assetsBase = mirrors[i];
+        var s = document.createElement("script");
+        s.textContent = txt;
+        document.head.appendChild(s);
+        return;
+      } catch (e) {}
+    }
+    console.warn("[opium-boot] loader.js not found — Mac OS SW will register alone");
+  })();
+})();
+
+        //]]>
+        </script>
+        <script>
+        //<![CDATA[
+        (async function () {
+          // NO BLOB. Inject Mac OS into this SVG document (Opium pattern).
+          function status(t) {
+            var el = document.getElementById("status");
+            if (el) el.textContent = t;
+            try { console.log("[svg]", t); } catch (e) {}
+          }
+
+          // Force SW path on THIS origin only (fixes cdn vs fastly error)
+          try {
+            var dir = location.pathname.replace(/[^/]+$/, "");
+            if (/\/gh\//.test(dir)) {
+              window.swPath = location.origin + dir + "sw.js";
+            } else {
+              window.swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
             }
+            console.log("[svg] locked swPath", window.swPath);
+          } catch (e) {}
 
-            var host = "cdn.jsdelivr.net";
-            try {
-              if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
-                host = location.hostname;
-              }
-            } catch (e) {}
+          var pageUrl = new URL("index.html", location.href).href;
+          var baseHref = new URL("./", location.href).href;
+          status("Loading Mac OS into SVG (no blob)…");
 
-            // Directory of this SVG on jsDelivr, e.g. /gh/Mo9nikeypurple/skool@main/
-            var base;
-            try {
-              base = new URL("./", location.href).href;
-            } catch (e) {
-              base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
-            }
-            // Prefer @main path if location has no @ (stable file list)
-            if (base.indexOf("/gh/Mo9nikeypurple/skool/") >= 0 && base.indexOf("@") < 0) {
-              // keep as-is; both work on jsDelivr
-            }
+          var html;
+          try {
+            var res = await fetch(pageUrl, { cache: "no-store", mode: "cors" });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            html = await res.text();
+          } catch (e) {
+            status("Fetch failed: " + e.message + " @ " + pageUrl);
+            return;
+          }
 
-            // Opium: absolute sw path beside this SVG
-            try {
-              window.swPath = new URL("sw.js", location.href).href;
-              // never allow CDN-root /sw.js
-              var sp = new URL(window.swPath);
-              if (sp.pathname === "/sw.js" || (sp.pathname.indexOf("/gh/") < 0 && /jsdelivr/i.test(sp.hostname))) {
-                window.swPath = "https://" + host + "/gh/Mo9nikeypurple/skool/sw.js";
-              }
-            } catch (e) {
-              window.swPath = "https://" + host + "/gh/Mo9nikeypurple/skool/sw.js";
-            }
+          // Inject parent + swPath so Mac OS never invents fastly URL
+          var sw = String(window.swPath || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+          var parent = String(location.href).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+          html = html.replace(/<head[^>]*>/i, function (m) {
+            return m +
+              '<base href="' + baseHref + '">' +
+              '<script>window.__NYX_SVG_PARENT="' + parent + '";window.swPath="' + sw + '";window.assetsBase=window.assetsBase||"https://cdn.jsdelivr.net/gh/TongSherbet/storage/";<\/script>';
+          });
 
-            var pageUrl = new URL("index.html", location.href).href;
-            status("Fetching Mac OS (school/jsDelivr mode)…");
+          var parsed = new DOMParser().parseFromString(html, "text/html");
 
-            var html;
-            try {
-              var res = await fetch(pageUrl, { cache: "no-store", mode: "cors" });
-              if (!res.ok) throw new Error("HTTP " + res.status + " for " + pageUrl);
-              html = await res.text();
-              if (!html || html.length < 500) throw new Error("index.html missing or empty");
-            } catch (err) {
-              status("Failed: " + ((err && err.message) || err) + " — need index.html next to this SVG on jsDelivr");
-              return;
-            }
+          if (!document.querySelector("base")) {
+            var b = document.createElement("base");
+            b.href = baseHref;
+            document.head.insertBefore(b, document.head.firstChild);
+          }
 
-            status("Injecting into SVG document (" + Math.round(html.length / 1024) + " KB)…");
+          parsed.querySelectorAll("style, link[rel='stylesheet']").forEach(function (n) {
+            try { document.head.appendChild(document.importNode(n, true)); } catch (e) {}
+          });
 
-            // Tell Mac OS we are the SVG parent location (for SW)
-            window.__NYX_SVG_PARENT = location.href;
-            html = html.replace(/<head[^>]*>/i, function (m) {
-              return m +
-                '\n<base href="' + base + '">' +
-                '\n<script>window.__NYX_SVG_PARENT="' + String(location.href).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '";' +
-                'window.swPath="' + String(window.swPath).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '";<\/script>';
+          if (parsed.body) {
+            document.body.innerHTML = "";
+            Array.prototype.slice.call(parsed.body.childNodes).forEach(function (n) {
+              try { document.body.appendChild(document.importNode(n, true)); } catch (e) {}
             });
+          }
 
-            var parsed;
-            try {
-              parsed = new DOMParser().parseFromString(html, "text/html");
-            } catch (e) {
-              status("Parse failed: " + e.message);
-              return;
-            }
-
-            // base tag
-            if (!document.querySelector("base")) {
-              var b = document.createElement("base");
-              b.setAttribute("href", base);
-              document.head.insertBefore(b, document.head.firstChild);
-            }
-
-            // CSS
-            try {
-              parsed.querySelectorAll("style, link[rel='stylesheet']").forEach(function (node) {
-                try { document.head.appendChild(document.importNode(node, true)); } catch (e) {}
-              });
-            } catch (e) {}
-
-            // Body
-            try {
-              if (parsed.body) {
-                document.body.innerHTML = "";
-                var kids = Array.prototype.slice.call(parsed.body.childNodes);
-                for (var i = 0; i < kids.length; i++) {
-                  try { document.body.appendChild(document.importNode(kids[i], true)); } catch (e) {}
+          var scripts = Array.prototype.slice.call(parsed.querySelectorAll("script"));
+          status("Scripts 0/" + scripts.length);
+          for (var i = 0; i < scripts.length; i++) {
+            if (i % 20 === 0) status("Scripts " + i + "/" + scripts.length);
+            var orig = scripts[i];
+            await new Promise(function (resolve) {
+              var done = false;
+              function fin() { if (!done) { done = true; resolve(); } }
+              try {
+                var el = document.createElement("script");
+                if (orig.src) {
+                  el.src = orig.src;
+                  el.async = false;
+                  el.onload = fin;
+                  el.onerror = fin;
+                  document.head.appendChild(el);
+                  setTimeout(fin, 2500);
+                } else {
+                  el.textContent = orig.textContent || "";
+                  document.head.appendChild(el);
+                  fin();
                 }
-              }
-            } catch (e) {
-              status("Body inject failed: " + e.message);
-              return;
-            }
-
-            // Scripts with hard timeout so we never stick on "Loading…"
-            var scripts = [];
-            try { scripts = Array.prototype.slice.call(parsed.querySelectorAll("script")); } catch (e) {}
-            status("Running scripts 0/" + scripts.length + "…");
-
-            for (var s = 0; s < scripts.length; s++) {
-              if (s % 15 === 0) status("Running scripts " + s + "/" + scripts.length + "…");
-              var orig = scripts[s];
-              await new Promise(function (resolve) {
-                var done = false;
-                function finish() { if (!done) { done = true; resolve(); } }
-                try {
-                  var el = document.createElement("script");
-                  if (orig && orig.src) {
-                    el.src = orig.src;
-                    el.async = false;
-                    el.onload = finish;
-                    el.onerror = finish;
-                    document.head.appendChild(el);
-                    setTimeout(finish, 3000);
-                  } else {
-                    el.textContent = (orig && orig.textContent) ? orig.textContent : "";
-                    document.head.appendChild(el);
-                    finish();
-                  }
-                } catch (e) {
-                  finish();
-                }
-              });
-            }
-
-            status("Ready — Safari + TikTok need SW at " + window.swPath);
-            try {
-              console.log("[school-svg] location=", location.href);
-              console.log("[school-svg] swPath=", window.swPath);
-            } catch (e) {}
-          })();
+              } catch (e) { fin(); }
+            });
+          }
+          status("Ready");
+          console.log("[svg] DONE location=", location.href, "swPath=", window.swPath);
+        })();
         //]]>
         </script>
       </head>

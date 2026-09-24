@@ -13641,46 +13641,76 @@ window.setDesktopBackground = setDesktopBackground;
 
     
     async function nyxRegisterSW() {
-      // School / jsDelivr / Opium pattern: page is …/gh/USER/REPO/index.svg (or injected into it).
-      // sw.js MUST be …/gh/USER/REPO/sw.js on the SAME host — never /sw.js at CDN root.
+      // Opium-style, school/jsDelivr safe:
+      // - Never register a SW on a different jsDelivr subdomain (cdn vs fastly)
+      // - Never use relative sw.js from blob: (becomes /sw.js or wrong host)
       await nyxDiscoverAssetsBase();
       var assetsBase = NYX_ASSETS || window.assetsBase || "https://cdn.jsdelivr.net/gh/TongSherbet/storage/";
       window.assetsBase = assetsBase;
 
-      var host = location.hostname || "cdn.jsdelivr.net";
-      var swPath = window.swPath || null;
+      var origin = location.origin; // for blob:https://cdn.jsdelivr.net/x → https://cdn.jsdelivr.net
+      var swPath = null;
 
-      try {
-        if (!swPath) swPath = new URL("sw.js", location.href).href;
-      } catch (e) {
-        swPath = "sw.js";
+      // 1) Explicit path from SVG inject
+      if (window.swPath && String(window.swPath).indexOf(origin) === 0) {
+        swPath = window.swPath;
       }
 
-      // If somehow root /sw.js, force repo path on this host
-      try {
-        var u = new URL(swPath, location.href);
-        if (/jsdelivr|b-cdn\.net/i.test(u.hostname) && (u.pathname === "/sw.js" || u.pathname.indexOf("/gh/") < 0)) {
-          // Try derive from current path: /gh/user/repo@main/file → /gh/user/repo@main/sw.js
-          var m = location.pathname.match(/^(.*?\/gh\/[^/]+\/[^/]+(?:@[^/]+)?\/)/);
-          if (m) {
-            swPath = location.origin + m[1] + "sw.js";
-          } else {
-            swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
+      // 2) Parent SVG location
+      if (!swPath && window.__NYX_SVG_PARENT) {
+        try { swPath = new URL("sw.js", window.__NYX_SVG_PARENT).href; } catch (e) {}
+      }
+
+      // 3) Derive from current path if under /gh/
+      if (!swPath) {
+        try {
+          if (location.pathname.indexOf("/gh/") >= 0) {
+            swPath = origin + location.pathname.replace(/[^/]+$/, "") + "sw.js";
           }
+        } catch (e) {}
+      }
+
+      // 4) Hardcoded repo on THIS origin only
+      if (!swPath || /jsdelivr|b-cdn\.net/i.test(location.hostname) || /^blob:/.test(location.href)) {
+        var forced = origin + "/gh/Mo9nikeypurple/skool/sw.js";
+        // Prefer @main if present in parent path
+        try {
+          var src = window.__NYX_SVG_PARENT || location.href;
+          var m = String(src).match(/\/gh\/Mo9nikeypurple\/skool@[^/]+\//);
+          if (m) forced = origin + m[0] + "sw.js";
+          else {
+            var m2 = String(src).match(/\/gh\/Mo9nikeypurple\/skool\//);
+            if (m2) forced = origin + "/gh/Mo9nikeypurple/skool/sw.js";
+          }
+        } catch (e) {}
+        swPath = forced;
+      }
+
+      // Absolute final guard: same origin as page
+      try {
+        if (new URL(swPath).origin !== origin) {
+          swPath = origin + "/gh/Mo9nikeypurple/skool/sw.js";
         }
-      } catch (e) {}
+      } catch (e) {
+        swPath = origin + "/gh/Mo9nikeypurple/skool/sw.js";
+      }
 
-      var swVersion = Math.floor(Date.now() / 3600000);
+      var v = Math.floor(Date.now() / 3600000);
       var baseQ = encodeURIComponent(btoa(assetsBase).split("").reverse().join(""));
-      var swUrl = swPath + (String(swPath).indexOf("?") >= 0 ? "&" : "?") + "base=" + baseQ + "&v=" + swVersion;
+      var swUrl = swPath + (swPath.indexOf("?") >= 0 ? "&" : "?") + "base=" + baseQ + "&v=" + v;
 
-      console.log("[nyx] school SW register", swUrl);
+      console.log("[nyx] SW", swUrl);
       console.log("[nyx] location", location.href);
 
-      var probe = await fetch(swUrl, { cache: "no-store" });
-      if (!probe.ok) {
-        throw new Error("sw.js HTTP " + probe.status + " at " + swUrl + " — upload sw.js next to the SVG on jsDelivr");
+      // Blob pages: SW can register on same origin but will NOT control blob clients.
+      // Scramjet/TikTok require non-blob location (SVG inject). Warn clearly.
+      if (/^blob:/i.test(location.href)) {
+        console.error("[nyx] Running inside blob: — service worker cannot control this page. Open lightspeed1.svg (new version) so Mac OS is injected into the SVG document, not a blob iframe.");
+        throw new Error("blob: context — cannot use Scramjet/TikTok. Use updated lightspeed1.svg (same-document inject, not blob).");
       }
+
+      var probe = await fetch(swUrl, { cache: "no-store" });
+      if (!probe.ok) throw new Error("sw.js HTTP " + probe.status + " @ " + swUrl);
 
       try {
         var existing = await navigator.serviceWorker.getRegistrations();
@@ -13688,14 +13718,12 @@ window.setDesktopBackground = setDesktopBackground;
       } catch (e) {}
 
       var scope = "./";
-      try {
-        scope = location.pathname.replace(/[^/]+$/, "") || "./";
-      } catch (e) {}
+      try { scope = location.pathname.replace(/[^/]+$/, "") || "./"; } catch (e) {}
 
       var reg = await navigator.serviceWorker.register(swUrl, { scope: scope, updateViaCache: "none" });
       await reg.update().catch(function () {});
       await navigator.serviceWorker.ready;
-      console.log("[nyx] SW ready", swUrl, "scope", scope);
+      console.log("[nyx] SW ready");
       return reg;
     }
 
