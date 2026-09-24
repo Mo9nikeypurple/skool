@@ -1,99 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;background:#000;">
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xhtml="http://www.w3.org/1999/xhtml"
+     width="100%" height="100%"
+     style="position:fixed;inset:0;width:100vw;height:100vh;background:#111;">
   <foreignObject x="0" y="0" width="100%" height="100%">
-    <html xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;margin:0;padding:0;background:#000;">
-      <head>
-        <meta charset="UTF-8"/>
-        <title>Mac OS</title>
-        <style>
-          /* <![CDATA[ */
-          html, body {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            overflow: hidden; background: #000;
-          }
-          iframe {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            border: none; background: #000;
-          }
-          #status {
-            color: #fff;
-            font-family: system-ui, -apple-system, sans-serif;
-            padding: 24px;
-            font-size: 14px;
-          }
-          /* ]]> */
-        </style>
-      </head>
-      <body>
-        <p id="status">Loading Mac OS…</p>
-        <script>
-        //<![CDATA[
-          (async function () {
-            var XHTML = "http://www.w3.org/1999/xhtml";
-            var body = document.body
-              || document.getElementsByTagName("body")[0]
-              || document.documentElement;
-            var statusEl = document.getElementById("status");
-
-            function fail(msg) {
-              if (statusEl) statusEl.textContent = msg;
-            }
-
-            // Match this SVG's jsDelivr host so origins stay consistent
-            var host = "cdn.jsdelivr.net";
-            try {
-              if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
-                host = location.hostname;
-              }
-            } catch (e) {}
-
-            var base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
-            var pageUrl = base + "index.html?t=" + Date.now();
-
-            try {
-              var res = await fetch(pageUrl, { cache: "no-store", mode: "cors" });
-              if (!res.ok) throw new Error("Could not fetch index.html (HTTP " + res.status + ")");
-              var html = await res.text();
-              if (!html || html.length < 200) throw new Error("index.html was empty");
-
-              // Must be a full document for the blob to render (not show as plain text)
-              if (!/<!DOCTYPE/i.test(html) && !/<html/i.test(html)) {
-                html = "<!DOCTYPE html><html><head></head><body>" + html + "</body></html>";
-              }
-
-              // Point relative URLs at the repo on this host
-              if (!/<base\s/i.test(html)) {
-                html = html.replace(/<head([^>]*)>/i, function (m, attrs) {
-                  return "<head" + attrs + ">\n    <base href=\"" + base + "\">";
-                });
-              }
-
-              // Hint for SW registration inside the page
-              html = html.replace(/<head([^>]*)>/i, function (m, attrs) {
-                return "<head" + attrs + ">\n    <meta name=\"nyx-assets-base\" content=\"" + base + "\">";
-              });
-
-              var blob = new Blob([html], { type: "text/html;charset=utf-8" });
-              var blobUrl = URL.createObjectURL(blob);
-
-              var iframe = document.createElementNS(XHTML, "iframe");
-              iframe.setAttribute("style", "position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;");
-              iframe.setAttribute("allow", "fullscreen; autoplay; encrypted-media; clipboard-read; clipboard-write");
-              iframe.setAttribute("src", blobUrl);
-
-              if (!body) throw new Error("No body in SVG foreignObject");
-              body.appendChild(iframe);
-              if (statusEl) statusEl.style.display = "none";
-            } catch (err) {
-              var msg = (err && err.message) ? err.message : String(err);
-              fail("Failed to load: " + msg + " — open " + pageUrl + " in a new tab instead");
-            }
-          })();
-        //]]>
-        </script>
-      </body>
-    </html>
+    <xhtml:div id="mount" style="width:100%;height:100%;margin:0;padding:0;background:#111;color:#eee;font:14px system-ui,sans-serif;">
+      <xhtml:p id="status" style="padding:20px;margin:0;">Loading Mac OS…</xhtml:p>
+    </xhtml:div>
   </foreignObject>
+  <script type="text/javascript">
+    //<![CDATA[
+    (async function () {
+      // Script is on the SVG root (not inside foreignObject) so it actually runs.
+      // jsDelivr serves .html as text/plain — must load via blob type text/html to RENDER.
+      function $(id) {
+        return document.getElementById(id);
+      }
+      function setStatus(t) {
+        var s = $("status");
+        if (s) s.textContent = t;
+      }
+
+      var host = "cdn.jsdelivr.net";
+      try {
+        if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
+          host = location.hostname;
+        }
+      } catch (e) {}
+
+      var base = "https://" + host + "/gh/Mo9nikeypurple/skool@main/";
+      var pageUrl = base + "index.html?t=" + Date.now();
+
+      try {
+        setStatus("Fetching " + pageUrl + " …");
+        var res = await fetch(pageUrl, { cache: "no-store", mode: "cors" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        var html = await res.text();
+        if (!html || html.length < 100) throw new Error("Empty index.html");
+
+        // Force a full document
+        if (!/<!DOCTYPE/i.test(html) && !/<html/i.test(html)) {
+          html = "<!DOCTYPE html><html><head></head><body>" + html + "</body></html>";
+        }
+
+        // <base> so relative assets resolve on this CDN host
+        if (!/<base\s/i.test(html)) {
+          html = html.replace(/<head([^>]*)>/i, function (m, a) {
+            return "<head" + a + ">\n<base href=\"" + base + "\">";
+          });
+        }
+
+        // CRITICAL: text/html so the browser RENDers instead of showing source text
+        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        var blobUrl = URL.createObjectURL(blob);
+
+        var mount = $("mount");
+        if (!mount) throw new Error("No #mount");
+
+        var iframe = document.createElementNS("http://www.w3.org/1999/xhtml", "iframe");
+        iframe.setAttribute("src", blobUrl);
+        iframe.setAttribute("allow", "fullscreen; autoplay; encrypted-media; clipboard-read; clipboard-write");
+        iframe.setAttribute("style", "position:fixed;top:0;left:0;width:100%;height:100%;border:0;margin:0;padding:0;background:#000;");
+
+        mount.innerHTML = "";
+        mount.appendChild(iframe);
+      } catch (err) {
+        var msg = (err && err.message) ? err.message : String(err);
+        setStatus("Failed: " + msg + " — Try opening " + pageUrl + " (may show as text on jsDelivr; use GitHub Pages for best results)");
+      }
+    })();
+    //]]>
+  </script>
 </svg>
