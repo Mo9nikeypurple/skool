@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xhtml="http://www.w3.org/1999/xhtml"
+     width="100%" height="100%"
+     style="position:fixed;inset:0;width:100%;height:100%;background:#000;">
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <xhtml:div id="mount" style="margin:0;padding:0;width:100%;height:100%;background:#000;color:#ccc;font:14px system-ui,sans-serif;">
+      <xhtml:p id="boot" style="padding:24px;margin:0;">Loading Mac OS…</xhtml:p>
+      <xhtml:p id="hint" style="padding:0 24px;color:#666;font:12px system-ui,sans-serif;">If this never changes, hard-refresh or purge jsDelivr cache for index.svg</xhtml:p>
+    </xhtml:div>
+  </foreignObject>
+  <!-- Script on SVG ROOT so it actually runs (foreignObject scripts often do not) -->
+  <script type="text/javascript">
+    //<![CDATA[
+    (function () {
+      function $(id) {
+        return document.getElementById(id);
+      }
+      function status(msg) {
+        var el = $("boot");
+        if (el) {
+          el.textContent = msg;
+        }
+        try { console.log("[macos-svg]", msg); } catch (e) {}
+      }
+
+      var pageUrl, baseHref;
+      try {
+        pageUrl = new URL("index.html", location.href).href;
+        baseHref = new URL("./", location.href).href;
+      } catch (e) {
+        pageUrl = "index.html";
+        baseHref = "";
+      }
+
+      status("Fetching: " + pageUrl);
+
+      fetch(pageUrl, { cache: "no-store", mode: "cors" })
+        .then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status + " for " + pageUrl);
+          status("Downloaded, reading…");
+          return res.text();
+        })
+        .then(function (html) {
+          if (!html || html.length < 500) {
+            throw new Error("index.html empty or missing (got " + (html ? html.length : 0) + " bytes)");
+          }
+          status("Building page (" + Math.round(html.length / 1024) + " KB)…");
+
+          if (!/<base\s/i.test(html)) {
+            html = html.replace(/<head([^>]*)>/i, function (m, a) {
+              return "<head" + a + ">\n<base href=\"" + baseHref + "\">";
+            });
+          }
+          html = html.replace(/<head([^>]*)>/i, function (m, a) {
+            return "<head" + a + ">\n<script>window.__NYX_SVG_PARENT=\"" +
+              String(location.href).replace(/\\/g, "\\\\").replace(/"/g, '\\"') +
+              "\";<\/script>";
+          });
+
+          var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+          var blobUrl = URL.createObjectURL(blob);
+
+          var mount = $("mount");
+          if (!mount) throw new Error("No #mount element");
+
+          var iframe = document.createElementNS("http://www.w3.org/1999/xhtml", "iframe");
+          iframe.setAttribute("src", blobUrl);
+          iframe.setAttribute("allow", "fullscreen; autoplay; encrypted-media; clipboard-read; clipboard-write");
+          iframe.setAttribute(
+            "style",
+            "position:fixed;top:0;left:0;width:100%;height:100%;border:0;margin:0;padding:0;background:#000;"
+          );
+
+          mount.innerHTML = "";
+          mount.appendChild(iframe);
+          status("Mac OS started");
+          try { console.log("[macos-svg] OK parent=", location.href, "sw should be", new URL("sw.js", location.href).href); } catch (e) {}
+        })
+        .catch(function (err) {
+          var msg = (err && err.message) ? err.message : String(err);
+          status("Failed: " + msg + " | Open this exact URL after upload: " + pageUrl);
+          var el = $("boot");
+          if (el) {
+            el.style.color = "#f88";
+            el.style.whiteSpace = "pre-wrap";
+          }
+        });
+    })();
+    //]]>
+  </script>
+</svg>
