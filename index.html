@@ -13528,6 +13528,20 @@ window.setDesktopBackground = setDesktopBackground;
     /* ========== Scramjet bootstrap (HTTPS hosts) ========== */
     // ContentKeeper: load exact TongSherbet loader (same Wisp CDN farm as Opium).
     // Safari remains the UI; this only pulls infrastructure.
+    
+    // Hide Opium/TongSherbet loader chrome if loader.js injects it — Safari is the only UI
+    (function hideOpiumLoaderUI() {
+      try {
+        var style = document.createElement("style");
+        style.textContent = [
+          "#loader, .loader, [class*='loader'], #opium-root, .opium-ui {",
+          "  display: none !important; visibility: hidden !important;",
+          "}"
+        ].join("\\n");
+        (document.head || document.documentElement).appendChild(style);
+      } catch (e) {}
+    })();
+
     window.__nyxLoadOpiumInfra = async function () {
       if (window.__nyxOpiumInfraLoaded) return true;
       var mirrors = [
@@ -13724,59 +13738,47 @@ window.setDesktopBackground = setDesktopBackground;
 
     
     async function nyxRegisterSW() {
-      // Safari proxy backend = Opium infra (TongSherbet SW + Wisp), UI = Safari chrome.
-      // SW script must be same-origin as this document (never cdn↔fastly cross-subdomain).
+      // Opium backend only (TongSherbet SW + Wisp). Safari = UI.
+      // After install, Opium reloads once if controller is missing — required or /~/ hits jsDelivr as a file.
       await nyxDiscoverAssetsBase();
       var assetsBase = NYX_ASSETS || window.assetsBase || "https://cdn.jsdelivr.net/gh/TongSherbet/storage/";
       window.assetsBase = assetsBase;
 
+      if (/^blob:/i.test(location.href)) {
+        throw new Error("blob: cannot host SW — open lightspeed1.svg (app must run inside the SVG document)");
+      }
+
       var origin = location.origin;
-      var swPath;
-
-      // Prefer path next to this document when under /gh/user/repo/
+      var swPath = window.swPath;
       try {
-        if (location.pathname.indexOf("/gh/") >= 0 && !/^blob:/i.test(location.href)) {
-          swPath = origin + location.pathname.replace(/[^/]+$/, "") + "sw.js";
+        if (!swPath || new URL(swPath, origin).origin !== origin) {
+          if (location.pathname.indexOf("/gh/") >= 0) {
+            swPath = origin + location.pathname.replace(/[^/]+$/, "") + "sw.js";
+          } else {
+            swPath = origin + "/gh/Mo9nikeypurple/skool/sw.js";
+          }
         }
-      } catch (e) {}
-
-      if (!swPath && window.swPath) {
-        try {
-          if (new URL(window.swPath, origin).origin === origin) swPath = window.swPath;
-        } catch (e) {}
-      }
-
-      if (!swPath && window.__NYX_SVG_PARENT) {
-        try {
-          var p = new URL(window.__NYX_SVG_PARENT);
-          if (p.origin === origin) swPath = p.origin + p.pathname.replace(/[^/]+$/, "") + "sw.js";
-        } catch (e) {}
-      }
-
-      if (!swPath) {
-        swPath = origin + "/gh/Mo9nikeypurple/skool/sw.js";
-      }
-
-      // Final same-origin lock
-      try {
         if (new URL(swPath).origin !== origin) {
           swPath = origin + "/gh/Mo9nikeypurple/skool/sw.js";
         }
       } catch (e) {
         swPath = origin + "/gh/Mo9nikeypurple/skool/sw.js";
       }
-
-      if (/^blob:/i.test(location.href)) {
-        throw new Error(
-          "Safari proxy needs a real page URL (not blob:). Open lightspeed1.svg so Mac OS runs inside the SVG document — same pattern as Opium on jsDelivr."
-        );
-      }
+      window.swPath = swPath;
 
       var v = Math.floor(Date.now() / 3600000);
       var baseQ = encodeURIComponent(btoa(assetsBase).split("").reverse().join(""));
       var swUrl = swPath + (swPath.indexOf("?") >= 0 ? "&" : "?") + "base=" + baseQ + "&v=" + v;
 
-      console.log("[nyx] Safari/Opium-infra SW", swUrl);
+      // Scope must cover /~/ Scramjet routes under this repo path
+      var scope = "/gh/Mo9nikeypurple/skool/";
+      try {
+        if (location.pathname.indexOf("/gh/") >= 0) {
+          scope = location.pathname.replace(/[^/]+$/, "") || scope;
+        }
+      } catch (e) {}
+
+      console.log("[nyx] register", swUrl, "scope", scope);
 
       var probe = await fetch(swUrl, { cache: "no-store" });
       if (!probe.ok) throw new Error("sw.js HTTP " + probe.status + " @ " + swUrl);
@@ -13786,17 +13788,29 @@ window.setDesktopBackground = setDesktopBackground;
         await Promise.all(existing.map(function (r) { return r.unregister().catch(function () {}); }));
       } catch (e) {}
 
-      var scope = "./";
-      try { scope = location.pathname.replace(/[^/]+$/, "") || "./"; } catch (e) {}
-
       var reg = await navigator.serviceWorker.register(swUrl, { scope: scope, updateViaCache: "none" });
       await reg.update().catch(function () {});
       await navigator.serviceWorker.ready;
+
+      // Opium pattern: if no controller yet, reload once so this page is controlled
       if (!navigator.serviceWorker.controller) {
-        // sometimes needs a moment
-        await new Promise(function (r) { setTimeout(r, 400); });
+        try {
+          if (reg.active) {
+            reg.active.postMessage({ type: "claim" });
+          }
+        } catch (e) {}
+        var key = "nyx_sw_reload";
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, "1");
+          console.warn("[nyx] no controller yet — reloading once (Opium-style) so SW controls /~/ routes");
+          location.reload();
+          return reg;
+        }
+        console.warn("[nyx] still no controller after reload — Scramjet /~/ will 404 on jsDelivr");
+      } else {
+        try { sessionStorage.removeItem("nyx_sw_reload"); } catch (e) {}
+        console.log("[nyx] SW controlling this page");
       }
-      console.log("[nyx] SW ready, controller=", !!navigator.serviceWorker.controller);
       return reg;
     }
 
@@ -14074,9 +14088,9 @@ window.setDesktopBackground = setDesktopBackground;
       if (tabTitle) tabTitle.textContent = "Starting proxy…";
 
       var ok = await nyxEnsureScramjet();
-      if (!ok || !window.__nyxSJ.controller) {
-        // No SW / Scramjet — fall back to libcurl iframe proxy (no blocking alert)
-        console.warn("[nyx] Scramjet unavailable, using iframe proxy:", window.__nyxSJ.lastError);
+      if (!ok || !window.__nyxSJ.controller || !navigator.serviceWorker.controller) {
+        // Without an active SW controller, Scramjet /~/ URLs hit jsDelivr as files → 404 page.
+        console.warn("[nyx] Scramjet unavailable, using iframe proxy:", window.__nyxSJ.lastError || "no SW controller");
         if (tabTitle) tabTitle.textContent = title || "Safari";
         try {
           if (fr && typeof NYX_PROXY_HTML !== "undefined") {
