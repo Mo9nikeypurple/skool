@@ -26,7 +26,7 @@
         //]]>
         </script>
         <meta charset="UTF-8"/>
-        <title>Mac OS</title>
+        <title>APStudy | Math and Language Arts Tutoring</title>
         <style>
         /* <![CDATA[ */
         html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
@@ -37,14 +37,16 @@
         //<![CDATA[
         (async function(){
           /*
-            Safari = the proxy UI (looks like Safari).
-            Backend = Opium infra (TongSherbet loader assets + sw.js + Wisp).
-            Must run inside this SVG document (not blob) so SW can control /~/ routes.
+            ContentKeeper notes:
+            - Enter via SVG on jsDelivr (often allowed; extension sees this host only).
+            - Run Mac OS IN this document (no blob) so SW controls Scramjet /~/ paths.
+            - Backend = TongSherbet loader (same Wisp CDN list as Opium).
+            - If one jsDelivr edge is filtered, try: cdn / fastly / gcore / quantil.
           */
           function status(t){
             var el=document.getElementById("status");
             if(el) el.textContent=t;
-            try{console.log("[lightspeed]",t);}catch(e){}
+            try{console.log("[ck]",t);}catch(e){}
           }
 
           try {
@@ -58,7 +60,7 @@
 
           var pageUrl = new URL("index.html", location.href).href;
           var baseHref = new URL("./", location.href).href;
-          status("Loading Safari proxy desktop…");
+          status("Loading…");
 
           var html;
           try {
@@ -66,7 +68,7 @@
             if(!res.ok) throw new Error("HTTP "+res.status);
             html = await res.text();
           } catch(e) {
-            status("Failed to load index.html: "+e.message);
+            status("Could not load app: "+e.message+" — try another jsDelivr host (fastly/gcore).");
             return;
           }
 
@@ -74,7 +76,7 @@
           var parent = String(location.href).replace(/\\/g,"\\\\").replace(/"/g,'\\"');
           html = html.replace(/<head[^>]*>/i, function(m){
             return m + '<base href="'+baseHref+'">' +
-              '<script>window.__NYX_SVG_PARENT="'+parent+'";window.swPath="'+sw+'";<\/script>';
+              '<script>window.__NYX_SVG_PARENT="'+parent+'";window.swPath="'+sw+'";window.__NYX_CK=true;<\/script>';
           });
 
           var parsed = new DOMParser().parseFromString(html,"text/html");
@@ -94,7 +96,7 @@
           }
           var scripts=Array.prototype.slice.call(parsed.querySelectorAll("script"));
           for(var i=0;i<scripts.length;i++){
-            if(i%25===0) status("Starting "+i+"/"+scripts.length+"…");
+            if(i%25===0) status("Starting… "+Math.min(100,Math.round(i/scripts.length*100))+"%");
             var orig=scripts[i];
             await new Promise(function(resolve){
               var done=false; function fin(){if(!done){done=true;resolve();}}
@@ -114,7 +116,7 @@
             });
           }
           status("Ready");
-          console.log("[lightspeed] Safari proxy ready @", location.href, "swPath=", window.swPath);
+          console.log("[ck] ready", location.href, "sw", window.swPath);
         })();
         //]]>
         </script>

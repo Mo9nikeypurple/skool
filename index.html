@@ -13526,6 +13526,58 @@ window.setDesktopBackground = setDesktopBackground;
     
     
     /* ========== Scramjet bootstrap (HTTPS hosts) ========== */
+    // ContentKeeper: load exact TongSherbet loader (same Wisp CDN farm as Opium).
+    // Safari remains the UI; this only pulls infrastructure.
+    window.__nyxLoadOpiumInfra = async function () {
+      if (window.__nyxOpiumInfraLoaded) return true;
+      var mirrors = [
+        "https://cdn.jsdelivr.net/gh/TongSherbet/storage/",
+        "https://fastly.jsdelivr.net/gh/TongSherbet/storage/",
+        "https://gcore.jsdelivr.net/gh/TongSherbet/storage/",
+        "https://quantil.jsdelivr.net/gh/TongSherbet/storage/",
+        "https://testingcf.jsdelivr.net/gh/TongSherbet/storage/",
+        "https://jsdelivr.b-cdn.net/gh/TongSherbet/storage/"
+      ];
+      try {
+        if (location.hostname && /jsdelivr\.net$/i.test(location.hostname)) {
+          mirrors.unshift("https://" + location.hostname + "/gh/TongSherbet/storage/");
+        }
+      } catch (e) {}
+      var hour = Math.floor(Date.now() / 3600000);
+      for (var i = 0; i < mirrors.length; i++) {
+        try {
+          var res = await fetch(mirrors[i] + "loader.js?" + hour + "&raw", {
+            cache: "no-store",
+            signal: AbortSignal.timeout(8000)
+          });
+          if (!res.ok) continue;
+          var txt = await res.text();
+          if (!txt || txt.length < 500 || !/serviceWorker|wisp|Wisp|serverList/i.test(txt)) continue;
+          window.assetsBase = mirrors[i];
+          // Ensure SW path stays on THIS origin (CK-safe: one host)
+          try {
+            if (!window.swPath || new URL(window.swPath).origin !== location.origin) {
+              if (location.pathname.indexOf("/gh/") >= 0) {
+                window.swPath = location.origin + location.pathname.replace(/[^/]+$/, "") + "sw.js";
+              } else {
+                window.swPath = location.origin + "/gh/Mo9nikeypurple/skool/sw.js";
+              }
+            }
+          } catch (e2) {}
+          var s = document.createElement("script");
+          s.textContent = txt;
+          document.head.appendChild(s);
+          window.__nyxOpiumInfraLoaded = true;
+          console.log("[nyx] TongSherbet infra from", mirrors[i]);
+          return true;
+        } catch (e) {
+          console.warn("[nyx] mirror fail", mirrors[i], e && e.message);
+        }
+      }
+      return false;
+    };
+
+
     // School/jsDelivr: Scramjet SW cannot control blob: Mac OS. TikTok & other SPAs
     // go through proxy.svg (Opium-style SVG doc + TongSherbet stack) on THIS origin.
     function nyxProxyGatewayUrl(targetUrl) {
@@ -13784,6 +13836,15 @@ window.setDesktopBackground = setDesktopBackground;
       if (location.protocol === "file:") {
         nyxSetErr("file:// cannot use Service Workers");
         return false;
+      }
+
+      // ContentKeeper: pull Opium/TongSherbet Wisp server farm + assets first
+      try {
+        if (typeof window.__nyxLoadOpiumInfra === "function") {
+          await window.__nyxLoadOpiumInfra();
+        }
+      } catch (eInfra) {
+        console.warn("[nyx] opium infra optional fail", eInfra);
       }
 
       window.__nyxSJ.starting = (async function () {
