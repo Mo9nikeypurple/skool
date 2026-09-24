@@ -13526,6 +13526,7 @@ window.setDesktopBackground = setDesktopBackground;
     
     
     /* ========== Scramjet bootstrap (HTTPS hosts) ========== */
+    console.log("[nyx] build 2026-09-24-sw-v6 — if you still see /sw.js requests, CDN is serving OLD index.html");
     /* Asset CDNs match index-36 TongSherbet/storage multi-mirror loader */
     window.__nyxSJ = window.__nyxSJ || { ready: false, starting: null, controller: null, frame: null, lastError: "" };
     var NYX_SW_CDN = "https://cdn.jsdelivr.net/gh/Mo9nikeypurple/skool@main/sw%20(4).js"; // Mo9nikeypurple/skool sw (4).js
@@ -13631,8 +13632,8 @@ window.setDesktopBackground = setDesktopBackground;
 
     
     async function nyxRegisterSW() {
-      // Build sw.js on the SAME jsDelivr host the page is using (cdn / fastly / gcore / …).
-      // Path is always /gh/Mo9nikeypurple/skool@main/sw.js — never /sw.js on the CDN root.
+      // v6: ONLY full /gh/Mo9nikeypurple/skool…/sw.js URLs on the page's own host.
+      // Never request https://cdn.jsdelivr.net/sw.js (invalid — causes HTTP 400).
       await nyxDiscoverAssetsBase();
       var v = Math.floor(Date.now() / 3600000);
       var baseParam = "";
@@ -13641,153 +13642,106 @@ window.setDesktopBackground = setDesktopBackground;
         baseParam = encodeURIComponent(b64.split("").reverse().join(""));
       } catch (e) {}
 
-      function withParams(abs) {
-        return abs + "?v=" + v + (baseParam ? "&base=" + baseParam : "");
-      }
-
-      // Every common jsDelivr front-end host
-      var JSD_HOSTS = [
-        "cdn.jsdelivr.net",
-        "fastly.jsdelivr.net",
-        "gcore.jsdelivr.net",
-        "testingcf.jsdelivr.net",
-        "quantil.jsdelivr.net",
-        "originfastly.jsdelivr.net",
-        "jsdelivr.b-cdn.net"
-      ];
-      var REPO_PATHS = [
-        "/gh/Mo9nikeypurple/skool@main/sw.js",
-        "/gh/Mo9nikeypurple/skool/sw.js"
-      ];
-
-      var pageOrigin = "";
-      var pageHost = "";
+      var host = "cdn.jsdelivr.net";
       try {
-        pageOrigin = location.origin;
-        pageHost = location.hostname || "";
+        if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
+          host = location.hostname;
+        }
       } catch (e) {}
 
-      var candidates = [];
-      function add(u) {
-        if (u && candidates.indexOf(u) < 0) candidates.push(u);
-      }
-
-      // A) Prefer CURRENT page host first (fixes "must be cdn.jsdelivr" when you're on fastly, etc.)
-      if (pageHost && (JSD_HOSTS.indexOf(pageHost) >= 0 || /\.jsdelivr\.net$/i.test(pageHost) || /jsdelivr/i.test(pageHost))) {
-        REPO_PATHS.forEach(function (p) {
-          add((location.protocol || "https:") + "//" + pageHost + p);
-        });
-        // Also if pathname already contains /gh/… use that directory
-        try {
-          if (/\/gh\//i.test(location.pathname)) {
-            var dir = location.pathname.replace(/[^/]+$/, "");
-            add(pageOrigin + dir + "sw.js");
-          }
-        } catch (e) {}
-      }
-
-      // B) All mirrors (same path) — only same-origin ones will actually register
-      JSD_HOSTS.forEach(function (h) {
-        REPO_PATHS.forEach(function (p) {
-          add("https://" + h + p);
-        });
-      });
-
-      // C) GitHub Pages
+      // Exact valid paths only — same host as the page
+      var list = [
+        "https://" + host + "/gh/Mo9nikeypurple/skool@main/sw.js",
+        "https://" + host + "/gh/Mo9nikeypurple/skool/sw.js"
+      ];
+      // GitHub Pages
       try {
-        if (/\.github\.io$/i.test(pageHost)) {
+        if (/\.github\.io$/i.test(location.hostname)) {
           var gp = location.pathname.replace(/[^/]+$/, "");
-          add(pageOrigin + gp + "sw.js");
+          list.unshift(location.origin + gp + "sw.js");
         }
       } catch (e) {}
-
-      // D) <base href>
+      // Real document path when it already includes /gh/
       try {
-        var baseEl = document.querySelector("base[href]");
-        if (baseEl && baseEl.href && /\/gh\//i.test(baseEl.href)) {
-          var bu = baseEl.href;
-          if (bu.slice(-1) !== "/") bu += "/";
-          add(bu + "sw.js");
+        if (location.protocol !== "blob:" && /\/gh\/[^/]+\/[^/]+/i.test(location.pathname)) {
+          list.unshift(location.origin + location.pathname.replace(/[^/]+$/, "") + "sw.js");
         }
       } catch (e) {}
 
-      // E) Document-relative when path has /gh/
-      try {
-        if (location.protocol !== "blob:" && /\/gh\//i.test(location.pathname)) {
-          add(pageOrigin + location.pathname.replace(/[^/]+$/, "") + "sw.js");
-        }
-      } catch (e) {}
-
-      // HARD reject CDN-root /sw.js and any jsDelivr URL missing /gh/
-      candidates = candidates.filter(function (u) {
+      // Deduplicate + safety filter
+      var seen = {};
+      var candidates = [];
+      list.forEach(function (u) {
         try {
-          var parsed = new URL(u);
-          var p = parsed.pathname;
-          if (p === "/sw.js" || p === "/sw%20(4).js") return false;
-          if (/jsdelivr|b-cdn\.net/i.test(parsed.hostname) && p.indexOf("/gh/") < 0) return false;
-          return true;
-        } catch (e) {
-          return false;
-        }
+          var path = new URL(u).pathname;
+          if (path === "/sw.js") return; // INVALID
+          if (/jsdelivr|b-cdn\.net/i.test(new URL(u).hostname) && path.indexOf("/gh/") < 0) return;
+          if (!seen[u]) { seen[u] = 1; candidates.push(u); }
+        } catch (e) {}
       });
 
-      console.log("[nyx] SW candidates (" + pageHost + "):", candidates);
+      console.log("[nyx] build 2026-09-24-sw-v6 SW candidates:", candidates);
 
       var lastErr = null;
       for (var i = 0; i < candidates.length; i++) {
         var raw = candidates[i];
-        var url = withParams(raw);
+        var url = raw + "?v=" + v + (baseParam ? "&base=" + baseParam : "");
         try {
-          // Only register same-origin (browser requirement)
-          if (pageOrigin && new URL(url).origin !== pageOrigin) {
-            continue;
+          // same-origin only
+          if (location.origin && new URL(url).origin !== location.origin && location.protocol !== "blob:") {
+            // blob: origin is the creating origin (jsdelivr host) — allow match on host
+            if (!(location.protocol === "blob:" && new URL(url).hostname === (location.hostname || host))) {
+              console.warn("[nyx] skip origin mismatch", url);
+              continue;
+            }
           }
-          var probe = await fetch(url, { cache: "no-store", method: "GET" });
+          if (location.protocol === "blob:") {
+            // blob pages inherit creator origin; require same hostname
+            try {
+              if (new URL(url).hostname !== host && new URL(url).hostname !== location.hostname) {
+                continue;
+              }
+            } catch (e) {}
+          }
+
+          var probe = await fetch(url, { cache: "no-store" });
           if (!probe.ok) {
-            lastErr = new Error("HTTP " + probe.status + " " + raw);
-            console.warn("[nyx] SW probe", lastErr.message);
+            lastErr = new Error("HTTP " + probe.status + " @ " + raw);
+            console.warn("[nyx] probe fail", lastErr.message);
             continue;
           }
-          var text = await probe.text();
-          if (!text || text.length < 40) {
-            lastErr = new Error("empty " + raw);
+          var body = await probe.text();
+          if (!body || body.length < 40) {
+            lastErr = new Error("empty @ " + raw);
             continue;
           }
+
           try {
-            var existing = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(existing.map(function (r) { return r.unregister().catch(function () {}); }));
+            var regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(function (r) { return r.unregister().catch(function () {}); }));
           } catch (e) {}
 
           var scope = "/gh/Mo9nikeypurple/skool@main/";
           try {
             if (/\/gh\//i.test(location.pathname)) {
               scope = location.pathname.replace(/[^/]+$/, "") || scope;
-            } else if (/\.github\.io$/i.test(pageHost)) {
-              scope = location.pathname.replace(/[^/]+$/, "") || "/";
             }
           } catch (e) {}
 
-          var reg = await navigator.serviceWorker.register(url, {
-            scope: scope,
-            updateViaCache: "none"
-          });
+          var reg = await navigator.serviceWorker.register(url, { scope: scope, updateViaCache: "none" });
           await reg.update().catch(function () {});
           await navigator.serviceWorker.ready;
-          console.log("[nyx] SW registered OK", url, "scope", scope);
+          console.log("[nyx] SW registered OK", url);
           return reg;
         } catch (e) {
           lastErr = e;
-          console.warn("[nyx] SW register failed", url, e && e.message ? e.message : e);
+          console.warn("[nyx] register fail", url, e && e.message ? e.message : e);
         }
       }
 
-      // If page origin didn't match any candidate host, tell user which host to use
-      var suggest = pageHost
-        ? ("https://" + pageHost + "/gh/Mo9nikeypurple/skool@main/sw.js")
-        : "https://cdn.jsdelivr.net/gh/Mo9nikeypurple/skool@main/sw.js";
       throw new Error(
-        (lastErr && lastErr.message ? lastErr.message : "sw.js not found") +
-        " — Open index.html on a jsDelivr host and keep SW on that same host, e.g. " + suggest
+        (lastErr && lastErr.message ? lastErr.message : "no sw") +
+        " — Need https://" + host + "/gh/Mo9nikeypurple/skool@main/sw.js (not /sw.js). If console lacks 'build 2026-09-24-sw-v6', jsDelivr is caching OLD index.html — re-commit or open with a new query string."
       );
     }
 
