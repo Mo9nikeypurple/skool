@@ -13632,8 +13632,8 @@ window.setDesktopBackground = setDesktopBackground;
 
     
     async function nyxRegisterSW() {
-      // OpiumBest/svg on jsDelivr: page URL is .../gh/USER/REPO/index.svg
-      // so relative sw.js → .../gh/USER/REPO/sw.js (VALID). Never use /sw.js root.
+      // When embedded via SVG srcdoc (OpiumBest/svg style on jsDelivr):
+      // parent location is …/gh/USER/REPO/index.svg → sw.js is …/gh/USER/REPO/sw.js
       await nyxDiscoverAssetsBase();
       var v = Math.floor(Date.now() / 3600000);
       var baseParam = "";
@@ -13646,46 +13646,56 @@ window.setDesktopBackground = setDesktopBackground;
         return u + (u.indexOf("?") >= 0 ? "&" : "?") + "v=" + v + (baseParam ? "&base=" + baseParam : "");
       }
 
+      // Resolve a "real" base URL for sw.js (not about:srcdoc / blob:)
+      var baseDoc = location.href;
+      try {
+        if (window.__NYX_SVG_PARENT) baseDoc = window.__NYX_SVG_PARENT;
+        else if (location.protocol === "about:" || location.protocol === "blob:" || /srcdoc/i.test(location.href)) {
+          if (window.parent && window.parent !== window) {
+            try { baseDoc = window.parent.location.href; } catch (e) {}
+          }
+        }
+      } catch (e) {}
+      try {
+        var bEl = document.querySelector("base[href]");
+        if (bEl && bEl.href && (/\/gh\//i.test(bEl.href) || /\.github\.io/i.test(bEl.href))) {
+          baseDoc = bEl.href;
+        }
+      } catch (e) {}
+
       var candidates = [];
       function add(u) {
         if (!u) return;
         try {
-          var path = new URL(u, location.href).pathname;
-          // Reject CDN-root /sw.js (the bug you kept seeing)
-          if (path === "/sw.js" || path === "/sw%20(4).js") {
-            if (/jsdelivr|b-cdn\.net/i.test(new URL(u, location.href).hostname)) return;
+          var abs = new URL(u, baseDoc).href;
+          var path = new URL(abs).pathname;
+          if (/jsdelivr|b-cdn\.net/i.test(new URL(abs).hostname) && (path === "/sw.js" || path.indexOf("/gh/") < 0)) {
+            return; // invalid CDN root
           }
-          if (/jsdelivr|b-cdn\.net/i.test(new URL(u, location.href).hostname) && path.indexOf("/gh/") < 0) return;
-          var abs = new URL(u, location.href).href;
           if (candidates.indexOf(abs) < 0) candidates.push(abs);
         } catch (e) {}
       }
 
-      // Primary: same directory as this document (SVG or HTML) — opium style
       add("sw.js");
       add("./sw.js");
-
-      // Explicit dir from pathname (…/gh/user/repo/ or …/gh/user/repo@main/)
       try {
-        var dir = location.pathname.replace(/[^/]+$/, "");
-        if (dir && dir !== "/") add(location.origin + dir + "sw.js");
+        var dir = new URL(baseDoc).pathname.replace(/[^/]+$/, "");
+        add(new URL(dir + "sw.js", new URL(baseDoc).origin).href);
       } catch (e) {}
 
-      // <base href> if present
-      try {
-        var b = document.querySelector("base[href]");
-        if (b && b.href) add(new URL("sw.js", b.href).href);
-      } catch (e) {}
-
-      console.log("[nyx] SW location=", location.href);
+      console.log("[nyx] SW baseDoc=", baseDoc);
       console.log("[nyx] SW candidates=", candidates);
 
       var lastErr = null;
       for (var i = 0; i < candidates.length; i++) {
         var url = qs(candidates[i]);
         try {
-          if (new URL(url).origin !== location.origin) {
-            console.warn("[nyx] skip other origin", url);
+          var pageOrigin = location.origin;
+          try {
+            if (window.parent && window.parent !== window) pageOrigin = window.parent.location.origin;
+          } catch (e) {}
+          if (new URL(url).origin !== pageOrigin && new URL(url).origin !== location.origin) {
+            console.warn("[nyx] skip origin", url);
             continue;
           }
           var probe = await fetch(url, { cache: "no-store" });
@@ -13702,10 +13712,9 @@ window.setDesktopBackground = setDesktopBackground;
             await Promise.all(existing.map(function (r) { return r.unregister().catch(function () {}); }));
           } catch (e) {}
 
-          // Scope = directory containing the SVG/HTML (…/gh/user/repo/)
           var scope = "./";
           try {
-            scope = location.pathname.replace(/[^/]+$/, "") || "./";
+            scope = new URL(baseDoc).pathname.replace(/[^/]+$/, "") || "./";
           } catch (e) {}
 
           var reg = await navigator.serviceWorker.register(url, { scope: scope, updateViaCache: "none" });
@@ -13721,7 +13730,7 @@ window.setDesktopBackground = setDesktopBackground;
 
       throw new Error(
         (lastErr && lastErr.message ? lastErr.message : "sw.js not found") +
-        " — Open via https://cdn.jsdelivr.net/gh/Mo9nikeypurple/skool/index.svg (like OpiumBest/svg). sw.js must sit next to index.svg in the repo."
+        " — Use https://cdn.jsdelivr.net/gh/Mo9nikeypurple/skool/index.svg with sw.js next to it (OpiumBest/svg layout)."
       );
     }
 
