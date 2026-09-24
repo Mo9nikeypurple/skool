@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;background:#000;">
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <html xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;margin:0;padding:0;background:#000;">
+      <head>
+        <meta charset="UTF-8"/>
+        <title>Mac OS</title>
+        <style>
+          /* <![CDATA[ */
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+          }
+          iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
+          }
+          #status {
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            padding: 20px;
+          }
+          /* ]]> */
+        </style>
+      </head>
+      <body>
+        <p id="status">Loading Mac OS…</p>
+        <script>
+        //<![CDATA[
+          (async function () {
+            var XHTML = "http://www.w3.org/1999/xhtml";
+            var body = document.body
+              || document.getElementsByTagName("body")[0]
+              || document.documentElement;
+            var status = document.getElementById("status")
+              || document.querySelector("#status");
+
+            function setStatus(msg) {
+              if (status) status.textContent = msg;
+              try { console.log("[lightspeed]", msg); } catch (e) {}
+            }
+
+            function makeIframe(src) {
+              var iframe = document.createElementNS(XHTML, "iframe");
+              iframe.setAttribute("style", "position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;");
+              iframe.setAttribute("allow", "fullscreen; autoplay; encrypted-media; clipboard-read; clipboard-write");
+              iframe.setAttribute("src", src);
+              return iframe;
+            }
+
+            /*
+              TikTok / Scramjet need a real origin + service worker.
+              blob: iframes cannot be controlled by SW → no TikTok.
+              Prefer githack (text/html + same-origin sw.js). Fall back to
+              jsDelivr blob only if githack is blocked (UI works, proxy limited).
+            */
+            var REPO = "Mo9nikeypurple/skool";
+            var BRANCH = "main";
+            var t = Date.now();
+
+            var primary = [
+              "https://raw.githack.com/" + REPO + "/" + BRANCH + "/index.html?t=" + t,
+              "https://rawcdn.githack.com/" + REPO + "/" + BRANCH + "/index.html?t=" + t,
+              "https://mo9nikeypurple.github.io/skool/index.html?t=" + t
+            ];
+
+            var jsdHost = "fastly.jsdelivr.net";
+            try {
+              if (location.hostname && /jsdelivr|b-cdn\.net/i.test(location.hostname)) {
+                jsdHost = location.hostname;
+              }
+            } catch (e) {}
+            var jsdBase = "https://" + jsdHost + "/gh/" + REPO + "@" + BRANCH + "/";
+
+            if (!body) {
+              setStatus("No body element found");
+              return;
+            }
+
+            // 1) Real-origin load (TikTok capable)
+            for (var i = 0; i < primary.length; i++) {
+              var url = primary[i];
+              try {
+                setStatus("Loading (TikTok/SW mode): " + url);
+                var probe = await fetch(url, { method: "GET", cache: "no-store", mode: "cors" });
+                if (!probe.ok) throw new Error("HTTP " + probe.status);
+                // Must be HTML, not text/plain
+                var ct = (probe.headers.get("content-type") || "").toLowerCase();
+                if (ct && ct.indexOf("text/html") < 0 && ct.indexOf("text/plain") >= 0) {
+                  throw new Error("not HTML (" + ct + ")");
+                }
+                // Consume body so connection is fine; iframe loads URL itself
+                try { await probe.text(); } catch (e) {}
+
+                var iframe = makeIframe(url);
+                body.appendChild(iframe);
+                if (status) status.setAttribute("style", "display:none");
+                try { console.log("[lightspeed] real-origin iframe", url); } catch (e) {}
+                return;
+              } catch (err) {
+                try { console.warn("[lightspeed] skip", url, err && err.message ? err.message : err); } catch (e) {}
+              }
+            }
+
+            // 2) Fallback: jsDelivr blob (UI works; Scramjet/TikTok will not — no SW on blob:)
+            try {
+              setStatus("Githack blocked — loading UI only (TikTok needs githack/Pages)…");
+              var url2 = jsdBase + "index.html?t=" + t;
+              var res = await fetch(url2, { cache: "no-store" });
+              if (!res.ok) throw new Error("HTTP " + res.status);
+              var html = await res.text();
+              html = html.replace(/<head[^>]*>/i, function (m) {
+                return m + '\n    <base href="' + jsdBase + '">';
+              });
+              // Hint for any SW code that we are under SVG (still cannot control blob)
+              html = html.replace(/<head[^>]*>/i, function (m) {
+                return m + '\n    <script>window.__NYX_LIGHTSPEED_BLOB=true;<\/script>';
+              });
+              var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+              var blobUrl = URL.createObjectURL(blob);
+              var iframe2 = makeIframe(blobUrl);
+              body.appendChild(iframe2);
+              if (status) status.setAttribute("style", "display:none");
+              try { console.warn("[lightspeed] blob fallback — Scramjet/TikTok unavailable until githack/Pages works"); } catch (e) {}
+            } catch (err) {
+              var msg = (err && err.message) ? err.message : String(err);
+              setStatus("Failed to load: " + msg);
+            }
+          })();
+        //]]>
+        </script>
+      </body>
+    </html>
+  </foreignObject>
+</svg>
