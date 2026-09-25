@@ -8897,6 +8897,262 @@ html[data-theme] .window-header.steam-popup-header,
       box-shadow: none !important;
     }
 
+
+    /* ===== Finder window (macOS Sequoia-style) ===== */
+    .finder-window {
+      display: none;
+      position: absolute;
+      top: 80px; left: 80px;
+      width: 820px; height: 520px;
+      min-width: 520px; min-height: 320px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(0,0,0,0.25);
+      overflow: hidden;
+      flex-direction: column;
+      z-index: 70;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+    }
+    .finder-window.active, .finder-window[style*="flex"] {
+      display: flex !important;
+    }
+    .finder-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 52px;
+      padding: 0 12px 0 14px;
+      background: linear-gradient(180deg, #f6f6f6 0%, #ececec 100%);
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      flex-shrink: 0;
+      -webkit-app-region: drag;
+    }
+    .finder-traffic {
+      display: flex; gap: 8px; margin-right: 10px;
+    }
+    .finder-traffic button {
+      width: 12px; height: 12px; border-radius: 50%; border: none; padding: 0; cursor: default;
+    }
+    .finder-traffic .close-finder { background: #ff5f57; }
+    .finder-traffic .min-finder { background: #febc2e; }
+    .finder-traffic .max-finder { background: #28c840; }
+    .finder-nav-btns { display: flex; gap: 2px; }
+    .finder-nav-btns button {
+      width: 28px; height: 24px; border: none; background: transparent;
+      border-radius: 5px; color: #3a3a3c; font-size: 14px; cursor: pointer;
+    }
+    .finder-nav-btns button:hover { background: rgba(0,0,0,0.06); }
+    .finder-nav-btns button:disabled { opacity: 0.35; }
+    .finder-title {
+      flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: #1d1d1f;
+      pointer-events: none;
+    }
+    .finder-toolbar-actions {
+      display: flex; align-items: center; gap: 4px; margin-left: auto;
+    }
+    .finder-toolbar-actions button {
+      height: 26px; min-width: 28px; padding: 0 8px; border: none;
+      background: transparent; border-radius: 6px; color: #3a3a3c; font-size: 13px; cursor: pointer;
+    }
+    .finder-toolbar-actions button:hover { background: rgba(0,0,0,0.06); }
+    .finder-body { display: flex; flex: 1; min-height: 0; }
+    .finder-sidebar {
+      width: 180px; flex-shrink: 0;
+      background: rgba(246,246,246,0.92);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(0,0,0,0.08);
+      padding: 10px 8px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+    .finder-side-label {
+      font-size: 11px; font-weight: 600; color: #8e8e93;
+      padding: 8px 10px 4px; text-transform: none; letter-spacing: 0;
+    }
+    .finder-side-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 10px; border-radius: 6px; cursor: pointer;
+      color: #1d1d1f; border: none; background: transparent; width: 100%;
+      text-align: left; font-size: 13px; font-family: inherit;
+    }
+    .finder-side-item:hover { background: rgba(0,0,0,0.05); }
+    .finder-side-item.active {
+      background: rgba(0,122,255,0.15);
+      color: #007aff;
+      font-weight: 500;
+    }
+    .finder-side-item .fi {
+      width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .finder-main {
+      flex: 1; display: flex; flex-direction: column; min-width: 0; background: #fff;
+    }
+    .finder-list-header {
+      display: grid;
+      grid-template-columns: 1fr 90px 100px 120px;
+      gap: 0;
+      padding: 0 16px;
+      height: 28px;
+      align-items: center;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      font-size: 11px; font-weight: 500; color: #6e6e73;
+      background: #fafafa;
+      flex-shrink: 0;
+    }
+    .finder-list-header span { padding: 0 4px; border-right: 1px solid transparent; }
+    .finder-list {
+      flex: 1; overflow-y: auto; padding: 0;
+    }
+    .finder-list-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 100px 120px;
+      gap: 0;
+      padding: 0 16px;
+      height: 28px;
+      align-items: center;
+      font-size: 13px; color: #1d1d1f;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      cursor: default;
+    }
+    .finder-list-row:hover { background: rgba(0,122,255,0.08); }
+    .finder-list-row.selected { background: #0a84ff; color: #fff; }
+    .finder-list-empty {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      color: #8e8e93; font-size: 13px; min-height: 200px;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 27px, rgba(0,0,0,0.03) 27px, rgba(0,0,0,0.03) 28px
+      );
+    }
+    .finder-list-row .name { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .finder-list-row .name img, .finder-list-row .name .folder-icon {
+      width: 16px; height: 16px; flex-shrink: 0;
+    }
+
+    /* Finder File menu style context */
+    .finder-file-menu, #finderFileMenu {
+      position: fixed;
+      min-width: 240px;
+      background: rgba(246,246,246,0.92);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+      padding: 5px;
+      z-index: 10060;
+      display: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .finder-file-menu.is-open, #finderFileMenu.is-open { display: block; }
+    .finder-file-menu button {
+      display: block; width: 100%; text-align: left;
+      padding: 5px 12px; border: none; background: transparent;
+      border-radius: 5px; font-size: 13px; color: #1d1d1f;
+      font-family: inherit; cursor: default;
+    }
+    .finder-file-menu button:hover, .finder-file-menu button.highlight {
+      background: #0a84ff; color: #fff;
+    }
+    .finder-file-menu button:disabled { opacity: 0.4; }
+    .finder-file-menu .menu-sep {
+      height: 1px; margin: 5px 8px; background: rgba(0,0,0,0.12); pointer-events: none;
+    }
+
+    /* Safari What's New modal */
+    .safari-whats-new {
+      position: absolute; inset: 0; z-index: 50;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.25);
+      pointer-events: auto;
+    }
+    .safari-whats-new.visible { display: flex; }
+    .safari-whats-new-card {
+      width: min(560px, 90%);
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 28px 32px 24px;
+      position: relative;
+      color: #1d1d1f;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .safari-whats-new-card h2 {
+      text-align: center; font-size: 22px; font-weight: 700; margin: 0 0 22px;
+    }
+    .safari-whats-new-close {
+      position: absolute; top: 12px; left: 14px;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: none; background: #e8e8ed; color: #6e6e73;
+      font-size: 14px; cursor: pointer; line-height: 1;
+    }
+    .safari-whats-new-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px;
+    }
+    .safari-whats-new-item { display: flex; gap: 12px; align-items: flex-start; }
+    .safari-whats-new-item .icon {
+      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: #e8f2ff; color: #007aff; font-size: 18px;
+    }
+    .safari-whats-new-item strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .safari-whats-new-item p { margin: 0; font-size: 12px; color: #6e6e73; line-height: 1.35; }
+
+    /* Safari search suggestions dropdown */
+    .safari-suggest {
+      position: absolute;
+      top: calc(100% + 4px); left: 0; right: 0;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0,0,0,0.08);
+      max-height: 320px; overflow-y: auto;
+      display: none; z-index: 100;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .safari-suggest.visible { display: block; }
+    .safari-suggest-label {
+      padding: 8px 14px 4px; font-size: 11px; color: #8e8e93; font-weight: 600;
+    }
+    .safari-suggest-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 14px; font-size: 13px; color: #1d1d1f;
+      cursor: pointer; border: none; background: transparent; width: 100%; text-align: left;
+      font-family: inherit;
+    }
+    .safari-suggest-item:hover, .safari-suggest-item.active {
+      background: rgba(0,122,255,0.12);
+    }
+    .safari-suggest-item .q-icon { color: #8e8e93; font-size: 12px; }
+
+    /* Safari privacy banner */
+    .safari-privacy-banner {
+      position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+      width: min(480px, 92%);
+      background: rgba(246,246,246,0.96);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      padding: 16px 18px;
+      z-index: 40;
+      display: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color: #1d1d1f;
+    }
+    .safari-privacy-banner.visible { display: block; }
+    .safari-privacy-banner .icons {
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;
+    }
+    .safari-privacy-banner .icons span {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 18px;
+    }
+    .safari-privacy-banner p { font-size: 12px; line-height: 1.45; margin: 0 0 8px; text-align: center; color: #3a3a3c; }
+    .safari-privacy-banner a { color: #007aff; text-decoration: none; }
+
+
     /* Game windows are launched from Steam — a subtle blue accent ties
        them back to the client, without touching any functionality. */
     .game-app .window__taskbar {
@@ -8904,6 +9160,755 @@ html[data-theme] .window-header.steam-popup-header,
     }
     .game-app .game-app-icon {
       box-shadow: 0 0 0 1px rgba(102,192,244,0.4);
+    }
+
+  
+    .safari.window { position: absolute; }
+    #safari-window { position: absolute; }
+    .safari-urlbar { position: relative !important; overflow: visible !important; }
+    .safari-suggest {
+      top: calc(100% + 6px) !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 200 !important;
+    }
+    .safari-whats-new, .safari-privacy-banner {
+      pointer-events: auto;
+    }
+    .finder-window .window__taskbar { display: none !important; }
+    .finder-window.is-maximized {
+      top: 28px !important; left: 0 !important;
+      width: 100vw !important; height: calc(100vh - 28px - 5.2rem) !important;
+      border-radius: 0 !important;
+    }
+
+  
+    /* ===== Safari suggestions + bookmarks bar (visibility fix) ===== */
+    .safari.window {
+      /* overflow stays hidden for rounded corners; suggest stacks via z-index inside window */
+      overflow: hidden !important;
+    }
+    .safari.window > .safari-chrome {
+      position: relative;
+      z-index: 40;
+      overflow: visible !important;
+    }
+    .safari-chrome-top {
+      position: relative;
+      z-index: 2;
+      overflow: visible !important;
+    }
+    .safari-urlbar {
+      overflow: visible !important;
+      position: relative !important;
+      z-index: 5;
+    }
+    .safari-suggest,
+    #safari-suggest {
+      position: absolute !important;
+      top: calc(100% + 6px) !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: auto !important;
+      min-width: 280px;
+      max-height: 340px;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      display: none;
+      z-index: 9999 !important;
+      background: rgba(255, 255, 255, 0.98) !important;
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-radius: 10px !important;
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.28),
+        0 0 0 0.5px rgba(0, 0, 0, 0.12) !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      padding: 4px 0 !important;
+      pointer-events: auto !important;
+    }
+    .safari-suggest.visible,
+    #safari-suggest.visible {
+      display: block !important;
+    }
+    .safari.window.dark-mode .safari-suggest,
+    .safari.window.dark-mode #safari-suggest {
+      background: rgba(40, 40, 42, 0.96) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #f5f5f7;
+    }
+    .safari.window.dark-mode .safari-suggest-item {
+      color: #f5f5f7;
+    }
+    .safari.window.dark-mode .safari-suggest-item:hover,
+    .safari.window.dark-mode .safari-suggest-item.active {
+      background: rgba(10, 132, 255, 0.35);
+    }
+    .safari.window.dark-mode .safari-suggest-label {
+      color: #98989d;
+    }
+    /* Keep page content below chrome so dropdown overlays it */
+    .safari-frames,
+    #safari-frames {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .safari-tabstrip {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Bookmarks bar */
+    .safari-bookmarks-bar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px 10px 4px;
+      min-height: 28px;
+      background: linear-gradient(180deg, #f0f0f2 0%, #e8e8ed 100%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      overflow-x: auto;
+      overflow-y: hidden;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .safari-bookmarks-bar::-webkit-scrollbar { display: none; }
+    .safari-bm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+      padding: 0 10px;
+      border: none;
+      border-radius: 5px;
+      background: transparent;
+      color: #1d1d1f;
+      font-size: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .safari-bm:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+    .safari-bm .bm-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .safari-bm .bm-icon.apple { background: #000; }
+    .safari-bm .bm-icon.icloud { background: #147efb; }
+    .safari-bm .bm-icon.yahoo { background: #6001d2; }
+    .safari-bm .bm-icon.bing { background: #00809d; }
+    .safari-bm .bm-icon.google { background: #fff; color: #4285f4; border: 1px solid #e0e0e0; }
+    .safari-bm .bm-icon.wiki { background: #000; }
+    .safari-bm .bm-icon.fb { background: #1877f2; }
+    .safari-bm .bm-icon.tw { background: #1d9bf0; }
+    .safari-bm .bm-icon.weather { background: #007aff; }
+    .safari-bm .bm-icon.yt { background: #ff0000; }
+    .safari-bm .bm-icon.ddg { background: #de5833; }
+    .safari.window.dark-mode .safari-bookmarks-bar {
+      background: linear-gradient(180deg, #2c2c2e 0%, #1c1c1e 100%);
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+    .safari.window.dark-mode .safari-bm {
+      color: #f5f5f7;
+    }
+    .safari.window.dark-mode .safari-bm:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+
+  
+    #safari-window .safari-chrome {
+      z-index: 50 !important;
+      overflow: visible !important;
+    }
+    #safari-window #safari-frames,
+    #safari-window .safari-frames {
+      z-index: 1 !important;
+    }
+    #safari-window #safari-suggest.visible {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+  
+    /* ===== macOS Safari–style search suggestions ===== */
+    #safari-suggest.safari-suggest,
+    .safari-suggest#safari-suggest {
+      position: absolute !important;
+      z-index: 10000 !important;
+      min-width: 320px;
+      max-height: 360px;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding: 6px !important;
+      margin: 0;
+      border-radius: 10px !important;
+      background: rgba(246, 246, 246, 0.92) !important;
+      backdrop-filter: blur(40px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+      border: 1px solid rgba(0, 0, 0, 0.12) !important;
+      box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.22),
+        0 0 0 0.5px rgba(0, 0, 0, 0.06) !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Inter", sans-serif !important;
+      color: #1d1d1f;
+      display: none;
+    }
+    #safari-suggest.safari-suggest.visible,
+    .safari-suggest#safari-suggest.visible {
+      display: block !important;
+    }
+    .safari-suggest-label {
+      padding: 6px 10px 4px !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      color: #8e8e93 !important;
+      letter-spacing: -0.01em;
+      background: transparent !important;
+    }
+    .safari-suggest-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      width: 100% !important;
+      padding: 7px 10px !important;
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 6px !important;
+      background: transparent !important;
+      color: #1d1d1f !important;
+      font-size: 13px !important;
+      font-weight: 400 !important;
+      font-family: inherit !important;
+      text-align: left !important;
+      cursor: default !important;
+      line-height: 1.25 !important;
+    }
+    .safari-suggest-item:hover,
+    .safari-suggest-item.active {
+      background: #0a84ff !important;
+      color: #fff !important;
+    }
+    .safari-suggest-item:hover .q-icon,
+    .safari-suggest-item.active .q-icon {
+      opacity: 1;
+      color: #fff !important;
+    }
+    .safari-suggest-item .q-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.45;
+      color: #1d1d1f;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .safari-suggest-item .q-icon svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor;
+    }
+    .safari-suggest-item .q-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .safari-suggest-item .q-text b,
+    .safari-suggest-item .q-text strong {
+      font-weight: 600;
+    }
+    .safari.window.dark-mode #safari-suggest,
+    .safari.window.dark-mode .safari-suggest {
+      background: rgba(40, 40, 42, 0.94) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #f5f5f7 !important;
+    }
+    .safari.window.dark-mode .safari-suggest-label {
+      color: #98989d !important;
+    }
+    .safari.window.dark-mode .safari-suggest-item {
+      color: #f5f5f7 !important;
+    }
+    .safari.window.dark-mode .safari-suggest-item .q-icon {
+      color: #f5f5f7;
+    }
+    .safari.window.dark-mode .safari-suggest-item:hover,
+    .safari.window.dark-mode .safari-suggest-item.active {
+      background: #0a84ff !important;
+      color: #fff !important;
+    }
+
+    /* ===== Bookmarks bar — Favorites-style tiles ===== */
+    .safari-bookmarks-bar {
+      display: flex !important;
+      align-items: center !important;
+      gap: 1px !important;
+      padding: 3px 12px 5px !important;
+      min-height: 30px !important;
+      background: #e8e8ed !important;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      flex-shrink: 0 !important;
+      scrollbar-width: none !important;
+    }
+    .safari-bookmarks-bar::-webkit-scrollbar { display: none !important; }
+    .safari-bm {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      height: 24px !important;
+      padding: 0 8px 0 4px !important;
+      border: none !important;
+      border-radius: 5px !important;
+      background: transparent !important;
+      color: #1d1d1f !important;
+      font-size: 12px !important;
+      font-weight: 400 !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif !important;
+      cursor: default !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      letter-spacing: -0.01em;
+    }
+    .safari-bm:hover {
+      background: rgba(0, 0, 0, 0.07) !important;
+    }
+    .safari-bm .bm-tile {
+      width: 16px !important;
+      height: 16px !important;
+      border-radius: 4px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      color: #fff !important;
+      flex-shrink: 0 !important;
+      line-height: 1 !important;
+      box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.12);
+    }
+    .safari-bm .bm-tile.apple { background: #1d1d1f !important; }
+    .safari-bm .bm-tile.icloud { background: linear-gradient(180deg, #5ac8fa, #007aff) !important; }
+    .safari-bm .bm-tile.yahoo {
+      background: linear-gradient(145deg, #7b1fa2, #6001d2) !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+    }
+    .safari-bm .bm-tile.bing {
+      background: #00809d !important;
+      font-family: Georgia, serif !important;
+      font-size: 12px !important;
+    }
+    .safari-bm .bm-tile.google {
+      background: #fff !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      box-shadow: none !important;
+    }
+    .safari-bm .bm-tile.wiki {
+      background: #fff !important;
+      color: #1d1d1f !important;
+      border: 1px solid rgba(0, 0, 0, 0.12) !important;
+      font-family: Georgia, "Times New Roman", serif !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      box-shadow: none !important;
+    }
+    .safari-bm .bm-tile.fb {
+      background: #1877f2 !important;
+      font-family: Helvetica, Arial, sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+    }
+    .safari-bm .bm-tile.tw {
+      background: #e8e8ed !important;
+      color: #1d1d1f !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      font-size: 10px !important;
+      box-shadow: none !important;
+    }
+    .safari-bm .bm-label { font-size: 12px; }
+    .safari.window.dark-mode .safari-bookmarks-bar {
+      background: #1c1c1e !important;
+      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    .safari.window.dark-mode .safari-bm { color: #f5f5f7 !important; }
+    .safari.window.dark-mode .safari-bm:hover { background: rgba(255, 255, 255, 0.1) !important; }
+    .safari.window.dark-mode .safari-bm .bm-tile.tw {
+      background: #3a3a3c !important;
+      color: #f5f5f7 !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+
+  
+    /* Menu bar keyboard shortcuts (macOS style) */
+    .navbar .leftLi > ul > li > button {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .navbar .menu-shortcut {
+      margin-left: auto;
+      font-size: 12px;
+      opacity: 0.55;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .navbar .leftLi > ul > li > button:hover .menu-shortcut {
+      opacity: 0.9;
+      color: #fff;
+    }
+    .navbar .menu-chevron {
+      margin-left: auto;
+      opacity: 0.55;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .navbar .leftLi > ul > li > button:hover .menu-chevron {
+      opacity: 0.95;
+      color: #fff;
+    }
+    .navbar .menu-icon-star,
+    .navbar .menu-icon-tab {
+      display: inline-block;
+      width: 16px;
+      text-align: center;
+      margin-right: 2px;
+      opacity: 0.85;
+    }
+    .navbar button:disabled,
+    .navbar button[disabled] {
+      opacity: 0.4 !important;
+      pointer-events: none;
+    }
+    /* Wider bookmarks menu */
+    .navbar .leftLi[data-menu="bookmarks"] > ul {
+      min-width: 280px !important;
+    }
+
+    /* Suggestions: fixed to viewport under the URL/search field */
+    #safari-suggest {
+      position: fixed !important;
+      z-index: 100000 !important;
+      min-width: 360px;
+      max-width: 560px;
+      max-height: min(380px, 50vh);
+      overflow-y: auto !important;
+      padding: 5px !important;
+      border-radius: 10px !important;
+      background: rgba(242, 242, 242, 0.94) !important;
+      backdrop-filter: blur(40px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+      border: 1px solid rgba(0, 0, 0, 0.12) !important;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22), 0 0 0 0.5px rgba(0, 0, 0, 0.04) !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif !important;
+    }
+    #safari-suggest.visible {
+      display: block !important;
+    }
+    /* Hide old in-window bookmarks bar if any remnant */
+    /* bookmarks bar shown */
+
+
+  
+    .bookmark-dialog {
+      position: fixed; inset: 0; z-index: 200000; display: none;
+      align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.28);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .bookmark-dialog.open { display: flex !important; }
+    .bookmark-dialog-card {
+      width: min(380px, 92vw);
+      background: rgba(246,246,246,0.96);
+      backdrop-filter: blur(40px) saturate(180%);
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 18px 20px 16px; color: #1d1d1f;
+    }
+    .bookmark-dialog-card h3 { margin: 0 0 14px; font-size: 15px; font-weight: 600; text-align: center; }
+    .bookmark-dialog-card label { display: block; font-size: 12px; color: #6e6e73; margin-bottom: 10px; }
+    .bookmark-dialog-card input {
+      display: block; width: 100%; margin-top: 4px; height: 30px;
+      border-radius: 6px; border: 1px solid rgba(0,0,0,0.15);
+      padding: 0 10px; font-size: 13px; background: #fff; color: #1d1d1f;
+      box-sizing: border-box; font-family: inherit;
+    }
+    .bookmark-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .bookmark-dialog-actions button {
+      height: 28px; padding: 0 14px; border-radius: 6px; border: none;
+      font-size: 13px; cursor: pointer; font-family: inherit;
+      background: rgba(0,0,0,0.06); color: #1d1d1f;
+    }
+    .bookmark-dialog-actions button.primary { background: #0a84ff; color: #fff; }
+/* url-search-suffix removed */
+    /* disabled show-suffix display */
+    /* disabled show-suffix transparent text */
+    .safari-urlbar.show-suffix .url-search-suffix .q-part { color: #1d1d1f; }
+    .safari-urlbar.show-suffix .url-search-suffix .s-part { color: #8e8e93; }
+    #safari-suggest.safari-suggest {
+      position: fixed !important; z-index: 150000 !important; display: none;
+      padding: 4px !important; border-radius: 10px !important;
+      background: rgba(236,236,236,0.95) !important;
+      backdrop-filter: blur(50px) saturate(200%) !important;
+      border: 0.5px solid rgba(0,0,0,0.12) !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18) !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+      max-height: 420px; overflow-y: auto;
+    }
+    #safari-suggest.visible { display: block !important; }
+    #safari-suggest .safari-suggest-item:hover {
+      background: rgba(0,0,0,0.06) !important; color: #1d1d1f !important;
+    }
+
+  
+    /* Fix weird search bar — restore normal URL field */
+    .safari-urlbar.show-suffix #safari-url,
+    .safari-urlbar #safari-url {
+      color: inherit !important;
+      caret-color: auto !important;
+    }
+    .safari.window.dark-mode .safari-urlbar #safari-url {
+      color: #f5f5f7 !important;
+    }
+    .safari-urlbar:not(.dark) #safari-url {
+      color: #1d1d1f !important;
+    }
+    .url-search-suffix { display: none !important; }
+    .safari-urlbar.show-suffix .url-search-suffix { display: none !important; }
+
+  
+    /* FORCE normal Safari URL bar text */
+    #safari-window #safari-url,
+    .safari-urlbar input#safari-url,
+    input#safari-url {
+      color: #1d1d1f !important;
+      -webkit-text-fill-color: #1d1d1f !important;
+      opacity: 1 !important;
+      background: transparent !important;
+    }
+    #safari-window.dark-mode #safari-url,
+    .safari.window.dark-mode #safari-url,
+    .safari.window.dark-mode .safari-urlbar input#safari-url {
+      color: #f5f5f7 !important;
+      -webkit-text-fill-color: #f5f5f7 !important;
+    }
+
+  
+    /* Suggestions — match real Safari screenshot */
+    #safari-suggest {
+      position: fixed !important;
+      z-index: 200000 !important;
+      display: none;
+      padding: 4px 0 !important;
+      border-radius: 10px !important;
+      background: rgba(246, 246, 246, 0.94) !important;
+      backdrop-filter: blur(40px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+      border: 0.5px solid rgba(0, 0, 0, 0.14) !important;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif !important;
+      max-height: 420px;
+      overflow-y: auto;
+      color: #1d1d1f;
+    }
+    #safari-suggest.visible { display: block !important; }
+    #safari-suggest .safari-suggest-label {
+      padding: 6px 14px 4px !important;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      color: #8e8e93 !important;
+    }
+    #safari-suggest .safari-suggest-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      width: 100% !important;
+      padding: 6px 14px !important;
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      color: #1d1d1f !important;
+      font-size: 13px !important;
+      text-align: left !important;
+      cursor: default !important;
+      font-family: inherit !important;
+      line-height: 1.3 !important;
+    }
+    #safari-suggest .safari-suggest-item:hover,
+    #safari-suggest .safari-suggest-item.active {
+      background: rgba(0, 0, 0, 0.06) !important;
+      color: #1d1d1f !important;
+    }
+    #safari-suggest .q-icon {
+      opacity: 0.35 !important;
+      color: #1d1d1f !important;
+      display: inline-flex !important;
+      flex-shrink: 0 !important;
+    }
+    #safari-suggest .q-text { flex: 1; }
+
+    .bookmark-dialog {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 300000 !important;
+      display: none !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: rgba(0, 0, 0, 0.3) !important;
+    }
+    .bookmark-dialog.open {
+      display: flex !important;
+    }
+
+  
+    /* ===== FORCE: Safari bookmarks bar + visible suggestions ===== */
+    .safari-bookmarks-bar {
+      display: flex !important;
+      align-items: center !important;
+      gap: 2px !important;
+      padding: 2px 10px 4px !important;
+      min-height: 28px !important;
+      background: #e8e8ed !important;
+      border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+      overflow-x: auto !important;
+      flex-shrink: 0 !important;
+      scrollbar-width: none !important;
+    }
+    .safari-bookmarks-bar::-webkit-scrollbar { display: none !important; }
+    .safari-bm {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      height: 22px !important;
+      padding: 0 8px 0 3px !important;
+      border: none !important;
+      border-radius: 4px !important;
+      background: transparent !important;
+      color: #1d1d1f !important;
+      font-size: 12px !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+      cursor: default !important;
+      white-space: nowrap !important;
+    }
+    .safari-bm:hover { background: rgba(0,0,0,0.07) !important; }
+    .safari-bm .bm-tile {
+      width: 16px !important; height: 16px !important; border-radius: 4px !important;
+      display: inline-flex !important; align-items: center !important; justify-content: center !important;
+      font-size: 10px !important; font-weight: 700 !important; color: #fff !important;
+    }
+    .safari-bm .bm-tile.apple { background: #1d1d1f !important; }
+    .safari-bm .bm-tile.icloud { background: linear-gradient(180deg,#5ac8fa,#007aff) !important; }
+    .safari-bm .bm-tile.yahoo { background: #6001d2 !important; font-size: 12px !important; }
+    .safari-bm .bm-tile.bing { background: #00809d !important; }
+    .safari-bm .bm-tile.google { background: #fff !important; color: #4285f4 !important; border: 1px solid #ddd !important; }
+    .safari-bm .bm-tile.wiki { background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; font-family: Georgia,serif !important; }
+    .safari-bm .bm-tile.fb { background: #1877f2 !important; font-size: 13px !important; }
+    .safari-bm .bm-tile.tw { background: #e8e8ed !important; color: #000 !important; border: 1px solid #ddd !important; }
+    .safari.window.dark-mode .safari-bookmarks-bar { background: #1c1c1e !important; border-bottom-color: rgba(255,255,255,0.08) !important; }
+    .safari.window.dark-mode .safari-bm { color: #f5f5f7 !important; }
+
+    #safari-window {
+      position: absolute !important;
+      overflow: visible !important;
+    }
+    #safari-window .safari-chrome {
+      position: relative !important;
+      z-index: 100 !important;
+      overflow: visible !important;
+    }
+    #safari-window .safari-chrome-top {
+      overflow: visible !important;
+      position: relative !important;
+      z-index: 5 !important;
+    }
+    #safari-window .safari-urlbar {
+      overflow: visible !important;
+      position: relative !important;
+      z-index: 10 !important;
+    }
+    #safari-window .safari-frames,
+    #safari-window #safari-frames {
+      z-index: 1 !important;
+      position: relative !important;
+    }
+
+    /* Suggestions panel — always on top of page content */
+    #safari-suggest {
+      position: fixed !important;
+      z-index: 2147483646 !important;
+      display: none !important;
+      box-sizing: border-box !important;
+      padding: 5px 0 !important;
+      margin: 0 !important;
+      border-radius: 10px !important;
+      background: #f2f2f2 !important;
+      background: rgba(242, 242, 242, 0.96) !important;
+      backdrop-filter: blur(30px) !important;
+      -webkit-backdrop-filter: blur(30px) !important;
+      border: 1px solid rgba(0,0,0,0.12) !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.22) !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif !important;
+      color: #1d1d1f !important;
+      max-height: 400px !important;
+      overflow-y: auto !important;
+      pointer-events: auto !important;
+    }
+    #safari-suggest.is-open {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    #safari-suggest .sg-label {
+      padding: 6px 14px 2px !important;
+      font-size: 11px !important;
+      color: #8e8e93 !important;
+      font-weight: 500 !important;
+    }
+    #safari-suggest .sg-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      width: 100% !important;
+      padding: 7px 14px !important;
+      border: 0 !important;
+      background: transparent !important;
+      color: #1d1d1f !important;
+      font-size: 13px !important;
+      text-align: left !important;
+      cursor: default !important;
+      font-family: inherit !important;
+      box-sizing: border-box !important;
+    }
+    #safari-suggest .sg-item:hover,
+    #safari-suggest .sg-item.active {
+      background: rgba(0,0,0,0.06) !important;
+    }
+    #safari-suggest .sg-ico {
+      width: 14px; height: 14px; opacity: 0.4; flex-shrink: 0;
     }
 
   </style>
@@ -8994,13 +9999,37 @@ html[data-theme] .window-header.steam-popup-header,
       </li>
       <li class="leftLi app_name is-active" id="menu-app-name"><p>Finder</p></li>
       <li class="leftLi menu-item" data-menu="file">File
-        <ul>
-          <li><button type="button" data-action="new-window">New Window</button></li>
-          <li><button type="button" data-action="open">Open...</button></li>
+        <ul id="menu-file-ul">
+          <li><button type="button" data-action="new-finder-window" class="finder-only">New Finder Window</button></li>
+          <li><button type="button" data-action="new-folder" class="finder-only">New Folder</button></li>
+          <li><button type="button" data-action="new-folder-selection" class="finder-only" disabled>New Folder with Selection</button></li>
+          <li><button type="button" data-action="new-smart-folder" class="finder-only">New Smart Folder</button></li>
+          <li><button type="button" data-action="new-tab" class="finder-only">New tab</button></li>
+          <li><button type="button" data-action="open" class="finder-only">Open</button></li>
+          <li><button type="button" data-action="open-with" class="finder-only" disabled>Open With</button></li>
+          <li><button type="button" data-action="print" class="finder-only" disabled>Print</button></li>
           <li><button type="button" data-action="close">Close Window</button></li>
-          <li class="menu-sep"></li>
-          <li><button type="button" data-action="save">Save</button></li>
-          <li><button type="button" data-action="save-as">Save As...</button></li>
+          <li class="menu-sep finder-only"></li>
+          <li><button type="button" data-action="get-info" class="finder-only">Get Info</button></li>
+          <li><button type="button" data-action="rename" class="finder-only" disabled>Rename</button></li>
+          <li class="menu-sep finder-only"></li>
+          <li><button type="button" data-action="compress" class="finder-only" disabled>Compress</button></li>
+          <li class="menu-sep finder-only"></li>
+          <li><button type="button" data-action="duplicate" class="finder-only" disabled>Duplicate</button></li>
+          <li><button type="button" data-action="make-alias" class="finder-only" disabled>Make Alias</button></li>
+          <li><button type="button" data-action="quick-look" class="finder-only" disabled>Quick Look</button></li>
+          <li><button type="button" data-action="show-original" class="finder-only" disabled>Show Original</button></li>
+          <li><button type="button" data-action="add-to-sidebar" class="finder-only" disabled>Add to Sidebar</button></li>
+          <li><button type="button" data-action="move-to-trash" class="finder-only" disabled>Move to Trash</button></li>
+          <li class="menu-sep finder-only"></li>
+          <li><button type="button" data-action="eject" class="finder-only" disabled>Eject</button></li>
+          <li class="menu-sep finder-only"></li>
+          <li><button type="button" data-action="find" class="finder-only">Find</button></li>
+          <li class="menu-sep finder-only"></li>
+          <li><button type="button" data-action="tags" class="finder-only">Tags...</button></li>
+          <li style="display:none" class="safari-only"><button type="button" data-action="new-window">New Window</button></li>
+          <li style="display:none" class="safari-only"><button type="button" data-action="new-tab">New Tab</button></li>
+          <li style="display:none" class="safari-only"><button type="button" data-action="close">Close Window</button></li>
         </ul>
       </li>
       <li class="leftLi menu-item" data-menu="edit">Edit
@@ -9021,6 +10050,37 @@ html[data-theme] .window-header.steam-popup-header,
           <li><button type="button" data-action="fullscreen">Enter Full Screen</button></li>
         </ul>
       </li>
+      <li class="leftLi menu-item safari-menu-extra" data-menu="history" style="display:none">History
+        <ul>
+          <li><button type="button" data-action="show-history">Show All History</button></li>
+          <li><button type="button" data-action="clear-history">Clear History...</button></li>
+        </ul>
+      </li>
+      <li class="leftLi menu-item" data-menu="bookmarks">Bookmarks
+        <ul class="menu-bookmarks-ul">
+          <li><button type="button" data-action="show-start-page">Show Start Page</button></li>
+          <li><button type="button" data-action="show-bookmarks">Show Bookmarks</button></li>
+          <li><button type="button" data-action="edit-bookmarks">Edit Bookmarks<span class="menu-shortcut">⌥⌘B</span></button></li>
+          <li class="menu-sep"></li>
+          <li><button type="button" data-action="add-bookmark">Add Bookmark...<span class="menu-shortcut">⌘D</span></button></li>
+          <li><button type="button" data-action="add-bookmarks-tabs">Add Bookmarks for Open Tabs...</button></li>
+          <li><button type="button" data-action="add-bookmark-folder">Add Bookmark Folder</button></li>
+          <li class="menu-sep"></li>
+          <li><button type="button" data-action="add-reading-list" disabled>Add to Reading List<span class="menu-shortcut">⇧⌘D</span></button></li>
+          <li><button type="button" data-action="add-open-tabs-reading" disabled>Add Open Tabs to Reading List</button></li>
+          <li><button type="button" data-action="prev-reading" disabled>Select Previous Item in Reading List<span class="menu-shortcut">⇧⌘▲</span></button></li>
+          <li><button type="button" data-action="next-reading" disabled>Select Next Item in Reading List<span class="menu-shortcut">⇧⌘▼</span></button></li>
+          <li class="menu-sep"></li>
+          <li class="menu-has-sub"><button type="button" data-action="favorites-submenu"><span class="menu-icon-star">★</span> Favorites<span class="menu-chevron">›</span></button></li>
+          <li class="menu-has-sub"><button type="button" data-action="tab-group-favorites"><span class="menu-icon-tab">⧉</span> Tab Group Favorites<span class="menu-chevron">›</span></button></li>
+        </ul>
+      </li>
+      <li class="leftLi menu-item safari-menu-extra" data-menu="develop" style="display:none">Develop
+        <ul>
+          <li><button type="button" data-action="show-web-inspector">Show Web Inspector</button></li>
+          <li><button type="button" data-action="empty-caches">Empty Caches</button></li>
+        </ul>
+      </li>
       <li class="leftLi menu-item" data-menu="window">Window
         <ul>
           <li><button type="button" data-action="minimize">Minimize</button></li>
@@ -9034,7 +10094,7 @@ html[data-theme] .window-header.steam-popup-header,
           <li><button type="button">macOS Help</button></li>
         </ul>
       </li>
-    </ul>
+</ul>
 
     <ul class="navbar__right">
       <li class="battery">
@@ -9591,6 +10651,51 @@ html[data-theme] .window-header.steam-popup-header,
     </div>
   </div>
 
+
+  <!-- FINDER WINDOW -->
+  <div class="finder-window window" id="finder-window" style="display:none">
+    <div class="finder-toolbar window__taskbar">
+      <div class="finder-traffic window__taskbar--actions">
+        <button type="button" class="close-finder" title="Close"></button>
+        <button type="button" class="min-finder" title="Minimize"></button>
+        <button type="button" class="max-finder full-finder" title="Maximize"></button>
+      </div>
+      <div class="finder-nav-btns">
+        <button type="button" id="finder-back" title="Back" disabled>‹</button>
+        <button type="button" id="finder-fwd" title="Forward" disabled>›</button>
+      </div>
+      <div class="finder-title" id="finder-title">Downloads</div>
+      <div class="finder-toolbar-actions">
+        <button type="button" title="View options">☰</button>
+        <button type="button" title="Icon view">▦</button>
+        <button type="button" title="Share">⬆</button>
+        <button type="button" title="Tags">🏷</button>
+        <button type="button" title="More">•••</button>
+        <button type="button" title="Search">🔍</button>
+      </div>
+    </div>
+    <div class="finder-body">
+      <div class="finder-sidebar">
+        <div class="finder-side-label">Favorites</div>
+        <button type="button" class="finder-side-item" data-folder="recents"><span class="fi">⏱</span> Recents</button>
+        <button type="button" class="finder-side-item" data-folder="applications"><span class="fi">🅰</span> Applications</button>
+        <button type="button" class="finder-side-item" data-folder="desktop"><span class="fi">🖥</span> Desktop</button>
+        <button type="button" class="finder-side-item" data-folder="documents"><span class="fi">📄</span> Documents</button>
+        <button type="button" class="finder-side-item active" data-folder="downloads"><span class="fi">⬇</span> Downloads</button>
+        <div class="finder-side-label">Locations</div>
+        <button type="button" class="finder-side-item" data-folder="macintosh-hd"><span class="fi">💾</span> Macintosh HD</button>
+      </div>
+      <div class="finder-main">
+        <div class="finder-list-header">
+          <span>Name</span><span>Size</span><span>Kind</span><span>Date Added</span>
+        </div>
+        <div class="finder-list" id="finder-list">
+          <div class="finder-list-empty" id="finder-empty">No items</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="settings-window window" id="settings-window">
       <div class="window__taskbar">
         <div class="window__taskbar--actions">
@@ -9810,10 +10915,7 @@ html[data-theme] .window-header.steam-popup-header,
                   <option value="epoxy">Epoxy</option>
                 </select>
               </div>
-              <div class="settings-row">
-                <div class="row-label"><strong>Prefer HTTP proxy</strong><span>Skip WebRTC/Wisp — better on restricted networks</span></div>
-                <button type="button" class="settings-toggle" data-toggle="safari-http-proxy" id="safari-http-proxy-toggle" aria-pressed="false"></button>
-              </div>
+
               <div class="settings-row">
                 <div class="row-label"><strong>Show status bar host</strong><span>Display hostname in the toolbar</span></div>
                 <button type="button" class="settings-toggle on" data-toggle="safari-status" id="safari-status-toggle" aria-pressed="true"></button>
@@ -9863,7 +10965,7 @@ html[data-theme] .window-header.steam-popup-header,
           <div class="safari-urlbar">
             <div class="safari-progress" id="safari-progress"></div>
             <svg class="safari-lock" width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1a2.5 2.5 0 00-2.5 2.5V5H3a1 1 0 00-1 1v4a1 1 0 001 1h6a1 1 0 001-1V6a1 1 0 00-1-1H8.5V3.5A2.5 2.5 0 006 1zm1.5 4H4.5V3.5a1.5 1.5 0 113 0V5z"/></svg>
-            <input id="safari-url" type="text" placeholder="Search DuckDuckGo or enter URL" spellcheck="false" autocomplete="off">
+            <input id="safari-url" type="text" placeholder="Search or enter website name" spellcheck="false" autocomplete="off">
             <button type="button" class="safari-icon-btn safari-inline-reload" title="Reload" id="safari-reload" aria-label="Reload">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
             </button>
@@ -9879,6 +10981,23 @@ html[data-theme] .window-header.steam-popup-header,
           </button>
           <button type="button" class="safari-theme-btn" id="safari-theme-toggle" title="Toggle dark mode" aria-label="Dark mode">☾</button>
         </div>
+
+        <!-- Search suggestions (sibling of toolbar so not clipped) -->
+        
+
+
+        <!-- In-browser bookmarks bar -->
+        <div class="safari-bookmarks-bar" id="safari-bookmarks-bar" role="navigation" aria-label="Favorites">
+          <button type="button" class="safari-bm" data-url="https://www.apple.com"><span class="bm-tile apple"></span><span class="bm-label">Apple</span></button>
+          <button type="button" class="safari-bm" data-url="https://www.icloud.com"><span class="bm-tile icloud">☁</span><span class="bm-label">iCloud</span></button>
+          <button type="button" class="safari-bm" data-url="https://www.yahoo.com"><span class="bm-tile yahoo">!</span><span class="bm-label">Yahoo</span></button>
+          <button type="button" class="safari-bm" data-url="https://www.bing.com"><span class="bm-tile bing">B</span><span class="bm-label">Bing</span></button>
+          <button type="button" class="safari-bm" data-url="https://www.google.com"><span class="bm-tile google">G</span><span class="bm-label">Google</span></button>
+          <button type="button" class="safari-bm" data-url="https://www.wikipedia.org"><span class="bm-tile wiki">W</span><span class="bm-label">Wikipedia</span></button>
+          <button type="button" class="safari-bm" data-url="https://www.facebook.com"><span class="bm-tile fb">f</span><span class="bm-label">Facebook</span></button>
+          <button type="button" class="safari-bm" data-url="https://twitter.com"><span class="bm-tile tw">𝕏</span><span class="bm-label">Twitter</span></button>
+        </div>
+
         <div class="safari-tabstrip" id="safari-tabstrip">
           <div class="safari-tab active" data-tab-id="0">
             <img class="safari-tab-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23e8e8ed' stroke='%23c7c7cc'/%3E%3Cpath d='M8 3a5 5 0 100 10A5 5 0 008 3z' fill='none' stroke='%238e8e93' stroke-width='1'/%3E%3C/svg%3E" alt="">
@@ -9891,6 +11010,53 @@ html[data-theme] .window-header.steam-popup-header,
       <div id="safari-frames" class="safari-frames">
         <iframe id="safari-frame" class="safari-frame-pane active" data-tab-id="0" allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-read; clipboard-write" allowfullscreen="true" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
+
+      <!-- Safari What's New -->
+      <div class="safari-whats-new" id="safari-whats-new">
+        <div class="safari-whats-new-card">
+          <button type="button" class="safari-whats-new-close" id="safari-whats-new-close" aria-label="Close">×</button>
+          <h2>What's New in Safari</h2>
+          <div class="safari-whats-new-grid">
+            <div class="safari-whats-new-item">
+              <div class="icon">✨</div>
+              <div>
+                <strong>Highlights</strong>
+                <p>Discover helpful information about webpages like summaries, locations, people, music, movies &amp; TV shows.</p>
+              </div>
+            </div>
+            <div class="safari-whats-new-item">
+              <div class="icon">▶</div>
+              <div>
+                <strong>Viewer</strong>
+                <p>Watch video without distractions with full access to video controls.</p>
+              </div>
+            </div>
+            <div class="safari-whats-new-item">
+              <div class="icon">📖</div>
+              <div>
+                <strong>Redesigned Reader</strong>
+                <p>View a summary and a table of contents in Reader to get the idea of an article before reading on.</p>
+              </div>
+            </div>
+            <div class="safari-whats-new-item">
+              <div class="icon">👁</div>
+              <div>
+                <strong>Distraction Control</strong>
+                <p>Hide items on a webpage that you find distracting. Easily revert changes later if you change your mind.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Safari privacy / search suggestions banner -->
+      <div class="safari-privacy-banner" id="safari-privacy-banner">
+        <div class="icons">
+          <span>🧭</span><span>🎵</span><span>🅰</span><span>🎬</span><span>🍴</span><span>🗺</span>
+        </div>
+        <p>Safari search now shows personalized suggestions from the web, the iTunes Store, the App Store, movie showtimes, locations nearby, and more. To make suggestions more relevant to you, Safari includes your approximate location with search requests to Apple.</p>
+        <p>You can adjust this in Safari Settings. <a href="#" id="safari-privacy-learn">Learn more...</a></p>
+      </div>
+
     </div>
 
 
@@ -10509,7 +11675,7 @@ html[data-theme] .window-header.steam-popup-header,
       if (!el) return;
       try {
         var z = 80;
-        document.querySelectorAll(".window, .safari, .steam, .settings-window, .Vscode, .imovie-window, .devhub-window, .calculator, .game-app").forEach(function (w) {
+        document.querySelectorAll(".window, .safari, .steam, .settings-window, .Vscode, .imovie-window, .devhub-window, .calculator, .game-app, .finder-window").forEach(function (w) {
           if (w === el) return;
           var wz = parseInt(w.style.zIndex || "0", 10);
           if (wz > z) z = wz;
@@ -10635,6 +11801,8 @@ html[data-theme] .window-header.steam-popup-header,
           [".steam", "steam"],
           [".safari", "safari"],
           ["#safari-window", "safari"],
+          [".finder-window", "finder"],
+          ["#finder-window", "finder"],
           [".settings-window", "settings"],
           ["#settings-window", "settings"],
           [".imovie-window", "appletv"],
@@ -13319,7 +14487,7 @@ window.setDesktopBackground = setDesktopBackground;
 
 
     // ===== Safari: Scramjet v2 stack via Wisp transport (libcurl) + DuckDuckGo =====
-    const NYX_PROXY_HTML = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Start Page</title>\n<style>\n:root{color-scheme:light dark;--bg:#e8e8ed;--text:#1d1d1f;--muted:#6e6e73;--accent:#007aff;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",system-ui,sans-serif}\n*{box-sizing:border-box}\nhtml,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text)}\n.page{height:100%;display:flex;flex-direction:column}\n#content{flex:1;min-height:0;position:relative}\n#view{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}\n#start{height:100%;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:48px 24px 40px}\n.start-search-wrap{width:min(560px,92%);margin-bottom:20px;position:relative}\n.start-search{width:100%;height:44px;border-radius:12px;border:none;background:rgba(255,255,255,.9);box-shadow:0 1px 3px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);padding:0 88px 0 40px;font-size:15px;color:var(--text);outline:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238e8e93' viewBox='0 0 24 24'%3E%3Cpath d='M11 4a7 7 0 015.52 11.27l4.1 4.1a1 1 0 01-1.41 1.42l-4.1-4.1A7 7 0 1111 4zm0 2a5 5 0 100 10 5 5 0 000-10z'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:14px center}\n.start-search:focus{box-shadow:0 0 0 3px rgba(0,122,255,.25),0 1px 3px rgba(0,0,0,.08)}\n.search-go{position:absolute;right:6px;top:6px;height:32px;padding:0 14px;border:none;border-radius:8px;background:#007aff;color:#fff;font-weight:600;font-size:13px;cursor:pointer}\n.search-go:hover{background:#0066d6}\n.favorites-label{width:min(720px,96%);font-size:22px;font-weight:700;margin:16px 0 18px}\n.favorites{width:min(720px,96%);display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:18px 12px;justify-items:center}\n@media(max-width:700px){.favorites{grid-template-columns:repeat(4,minmax(0,1fr))}}\n.fav{display:flex;flex-direction:column;align-items:center;gap:8px;border:none;background:transparent;cursor:pointer;padding:0;color:var(--text);font:inherit}\n.fav-icon{width:56px;height:56px;border-radius:14px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);display:grid;place-items:center;font-size:22px;font-weight:700;overflow:hidden}\n.fav-icon img{width:28px;height:28px;object-fit:contain}\n.fav-icon.bing{background:#00809d;color:#fff}\n.fav-icon.fb{background:#1877f2;color:#fff;font-size:26px}\n.fav-icon.tw{background:#e7e7e8;color:#1d1d1f;font-weight:800}\n.fav span{font-size:12px;color:var(--muted)}\n.boot{position:absolute;inset:0;display:none;place-items:center;background:rgba(255,255,255,.55);backdrop-filter:blur(14px);z-index:2}\n.boot.show{display:grid}\n.boot-inner{text-align:center;color:var(--muted);font-size:13px}\n.spinner{width:26px;height:26px;margin:0 auto 10px;border:2px solid rgba(0,0,0,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}\n@keyframes spin{to{transform:rotate(360deg)}}\n.proxy-status{margin-top:24px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}\n.proxy-status .dot{width:8px;height:8px;border-radius:50%;background:#8e8e93}\n.proxy-status.ready .dot{background:#30d158}\n.proxy-status.error .dot{background:#ff453a}\nhtml.dark,html.dark body{background:#1c1c1e!important;color:#f5f5f7!important}\nhtml.dark #start{background:#1c1c1e}\nhtml.dark .start-search{background:rgba(0,0,0,.4)!important;color:#f5f5f7!important;box-shadow:0 0 0 1px rgba(255,255,255,.1)!important}\nhtml.dark .fav-icon{background:#2c2c2e!important}\nhtml.dark .boot{background:rgba(28,28,30,.55)}\n</style>\n</head>\n<body>\n<div class=\"page\"><div id=\"content\">\n<div id=\"start\">\n  <div class=\"start-search-wrap\">\n    <input class=\"start-search\" id=\"startSearch\" type=\"text\" placeholder=\"Search DuckDuckGo or enter URL\" spellcheck=\"false\" autocomplete=\"off\">\n    <button type=\"button\" class=\"search-go\" id=\"startSearchGo\">Search</button>\n  </div>\n  <div class=\"favorites-label\">Favorites</div>\n  <div class=\"favorites\">\n    <button class=\"fav\" data-url=\"https://www.apple.com\"><div class=\"fav-icon\"><img src=\"https://www.apple.com/favicon.ico\" alt=\"\"></div><span>Apple</span></button>\n    <button class=\"fav\" data-url=\"https://www.icloud.com\"><div class=\"fav-icon\"><img src=\"https://www.icloud.com/favicon.ico\" alt=\"\"></div><span>iCloud</span></button>\n    <button class=\"fav\" data-url=\"search:DuckDuckGo\"><div class=\"fav-icon\" style=\"font-size:18px\">🦆</div><span>DuckDuckGo</span></button>\n    <button class=\"fav\" data-url=\"https://www.wikipedia.org\"><div class=\"fav-icon\"><img src=\"https://www.wikipedia.org/static/favicon/wikipedia.ico\" alt=\"\"></div><span>Wikipedia</span></button>\n    <button class=\"fav\" data-url=\"https://www.google.com\"><div class=\"fav-icon\"><img src=\"https://www.google.com/favicon.ico\" alt=\"\"></div><span>Google</span></button>\n    <button class=\"fav\" data-url=\"https://www.bing.com\"><div class=\"fav-icon bing\">B</div><span>Bing</span></button>\n    <button class=\"fav\" data-url=\"https://www.facebook.com\"><div class=\"fav-icon fb\">f</div><span>Facebook</span></button>\n    <button class=\"fav\" data-url=\"https://www.tiktok.com/\"><div class=\"fav-icon\" style=\"background:#010101;color:#fff\">T</div><span>TikTok</span></button>\n    <button class=\"fav\" data-url=\"https://www.youtube.com/\"><div class=\"fav-icon\" style=\"background:#ff0000;color:#fff\">▶</div><span>YouTube</span></button>\n    <button class=\"fav\" data-url=\"https://x.com\"><div class=\"fav-icon tw\">X</div><span>X</span></button>\n  </div>\n  <div class=\"proxy-status\" id=\"proxyStatus\"><span class=\"dot\"></span><span id=\"proxyStatusText\">Connecting proxy…</span></div>\n</div>\n<iframe id=\"view\" title=\"Page\" allow=\"fullscreen; autoplay; encrypted-media; picture-in-picture\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>\n<div class=\"boot\" id=\"boot\"><div class=\"boot-inner\"><div class=\"spinner\"></div><div id=\"bootMsg\">Loading…</div></div></div>\n</div></div>\n\n<script>\n(function () {\n  const SERVERS = [\n    \"wss://cdn.northstreetumc.org/adblock/\",\n    \"wss://cdn.vipersfutbol.com/adblock/\",\n    \"wss://cdn.pcesc.org/adblock/\",\n    \"wss://cdn.kcchallengevbc.com/adblock/\",\n    \"wss://cdn.slcbmooc.org/adblock/\",\n    \"wss://athollcottage.com/connection/\",\n    \"wss://kristenblackburnvolleyballcamps.com/socket/\",\n    \"wss://southpadreislandkiteboarding/socket/\",\n    \"wss://wisp.mercurywork.shop/\",\n    \"wss://wisp.mercurywork.shop/wisp/\",\n    \"wss://anura.pro/\",\n    \"wss://wisp.terbiumon.top/wisp/\",\n    \"wss://wisp.smartfoloo.space/\"\n  ];\n  const start = document.getElementById(\"start\");\n  const view = document.getElementById(\"view\");\n  const boot = document.getElementById(\"boot\");\n  const bootMsg = document.getElementById(\"bootMsg\");\n  const startSearch = document.getElementById(\"startSearch\");\n  const goBtn = document.getElementById(\"startSearchGo\");\n  const proxyStatus = document.getElementById(\"proxyStatus\");\n  const proxyStatusText = document.getElementById(\"proxyStatusText\");\n\n  let libcurl = null;\n  let epoxyTransport = null;\n  let ready = false;\n  let currentPageUrl = \"\";\n  let curlPromise = null;\n  let activeEngine = \"libcurl\";\n\n  function setStatus(state, text) {\n    if (proxyStatus) {\n      proxyStatus.classList.remove(\"ready\", \"error\");\n      if (state) proxyStatus.classList.add(state);\n    }\n    if (proxyStatusText) proxyStatusText.textContent = text || \"\";\n  }\n  function showStart() {\n    if (start) start.style.display = \"flex\";\n    if (view) {\n      view.style.display = \"none\";\n      try { view.removeAttribute(\"src\"); view.removeAttribute(\"srcdoc\"); } catch (e) {}\n    }\n    if (boot) boot.classList.remove(\"show\");\n    try { parent.postMessage({ type: \"safari-state\", title: \"Start Page\", url: \"\" }, \"*\"); } catch (e) {}\n  }\n  function showBoot(msg) {\n    if (boot) boot.classList.add(\"show\");\n    if (bootMsg) bootMsg.textContent = msg || \"Loading…\";\n  }\n  function hideBoot() { if (boot) boot.classList.remove(\"show\"); }\n\n  function isProbablyUrl(u) {\n    if (/^https?:\\/\\//i.test(u)) return true;\n    if (u.startsWith(\"//\")) return true;\n    if (/^localhost\\b/i.test(u)) return true;\n    return /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+([/:?#].*)?$/i.test(u);\n  }\n\n  function normalizeUrl(raw) {\n    var u = String(raw || \"\").trim();\n    if (!u) return \"\";\n    if (/^search:/i.test(u)) return \"search:\" + u.slice(7).trim();\n    if (/^(tiktok|tt)$/i.test(u)) return \"https://www.tiktok.com/\";\n    if (/^youtube$|^yt$/i.test(u)) return \"https://www.youtube.com/\";\n    if (/^https?:\\/\\//i.test(u)) {\n      try { return new URL(u).href; } catch (e) { return u; }\n    }\n    if (u.startsWith(\"//\")) {\n      try { return new URL(\"https:\" + u).href; } catch (e) { return \"https:\" + u; }\n    }\n    if (isProbablyUrl(u)) {\n      try { return new URL(\"https://\" + u).href; } catch (e) { return \"https://\" + u; }\n    }\n    return \"search:\" + u;\n  }\n\n  function hostLabel(u) {\n    if (/^search:/i.test(u)) return \"Search\";\n    try { return new URL(u).hostname.replace(/^www\\./, \"\"); } catch (e) { return u; }\n  }\n\n  function esc(s) {\n    return String(s || \"\").replace(/[&<>\"']/g, function (c) {\n      return ({ \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\" })[c];\n    });\n  }\n\n  function getPreferredEngine() {\n    try {\n      if (localStorage.getItem(\"nyx_safari_proxy_engine\") === \"epoxy\") return \"epoxy\";\n    } catch (e) {}\n    return \"libcurl\";\n  }\n\n  async function ensureCurl() {\n    if (ready && ((activeEngine === \"libcurl\" && libcurl) || (activeEngine === \"epoxy\" && epoxyTransport) || window.__nyxHttpProxyOnly)) {\n      return true;\n    }\n    if (curlPromise) return curlPromise;\n    curlPromise = (async function () {\n      try {\n        if (localStorage.getItem(\"nyx_force_http_proxy\") === \"1\") {\n          ready = true; libcurl = null; epoxyTransport = null; window.__nyxHttpProxyOnly = true;\n          activeEngine = \"http\";\n          setStatus(\"ready\", \"HTTP proxy mode\");\n          return true;\n        }\n      } catch (e) {}\n\n      if (typeof WebSocket === \"undefined\") {\n        ready = true; libcurl = null; epoxyTransport = null; window.__nyxHttpProxyOnly = true;\n        activeEngine = \"http\";\n        setStatus(\"ready\", \"HTTP proxy mode\");\n        return true;\n      }\n\n      var servers = SERVERS.slice();\n      try {\n        var saved = localStorage.getItem(\"nyx_wisp\");\n        if (saved && String(saved).trim()) {\n          servers = [String(saved).trim()];\n        } else {\n          var lastGood = localStorage.getItem(\"nyx_wisp_last\");\n          if (lastGood) servers = [lastGood].concat(servers.filter(function (x) { return x !== lastGood; }));\n        }\n      } catch (e) {}\n\n      var want = getPreferredEngine();\n      activeEngine = want;\n      setStatus(\"\", \"Connecting \" + want + \"…\");\n\n      if (want === \"epoxy\") {\n        try {\n          var epoxyMod = null;\n          var epoxyImports = [\n            \"https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@2.1.27/dist/index.mjs\",\n            \"https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@2/dist/index.mjs\"\n          ];\n          for (var ei = 0; ei < epoxyImports.length; ei++) {\n            try { epoxyMod = await import(epoxyImports[ei]); break; } catch (e) {}\n          }\n          if (epoxyMod) {\n            var EpoxyCtor = epoxyMod.default || epoxyMod.EpoxyTransport || epoxyMod.EpoxyClient;\n            if (EpoxyCtor) {\n              for (var es = 0; es < Math.min(servers.length, 3); es++) {\n                try {\n                  var transport = new EpoxyCtor({ wisp: servers[es] });\n                  if (typeof transport.init === \"function\") {\n                    await Promise.race([\n                      transport.init(),\n                      new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 5000); })\n                    ]);\n                  }\n                  epoxyTransport = transport;\n                  libcurl = null;\n                  ready = true;\n                  window.__nyxHttpProxyOnly = false;\n                  activeEngine = \"epoxy\";\n                  try { localStorage.setItem(\"nyx_wisp_last\", servers[es]); } catch (e) {}\n                  setStatus(\"ready\", \"Epoxy ready — \" + servers[es]);\n                  return true;\n                } catch (e) {}\n              }\n            }\n          }\n        } catch (e) {}\n        setStatus(\"\", \"Epoxy failed — trying libcurl…\");\n      }\n\n      var mod = null;\n      var imports = [\n        \"https://cdn.jsdelivr.net/npm/libcurl.js@0.7.1/libcurl_full.mjs\",\n        \"https://cdn.jsdelivr.net/npm/libcurl.js@0.7.4/libcurl_full.mjs\",\n        \"https://cdn.jsdelivr.net/npm/libcurl.js@latest/libcurl_full.mjs\"\n      ];\n      for (var i = 0; i < imports.length; i++) {\n        try { mod = await import(imports[i]); break; } catch (e) {}\n      }\n      if (!mod) {\n        ready = true; libcurl = null; epoxyTransport = null; window.__nyxHttpProxyOnly = true;\n        activeEngine = \"http\";\n        setStatus(\"ready\", \"HTTP proxy mode\");\n        return true;\n      }\n      libcurl = mod.libcurl || mod.default || mod;\n      if (typeof libcurl.load_wasm === \"function\") {\n        try { await libcurl.load_wasm(); } catch (e) {}\n      }\n      for (var s = 0; s < servers.length; s++) {\n        try {\n          libcurl.set_websocket(servers[s]);\n          var r = await Promise.race([\n            libcurl.fetch(\"https://example.com/\", { redirect: \"follow\" }),\n            new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 4000); })\n          ]);\n          if (r && r.status >= 200 && r.status < 500) {\n            ready = true;\n            epoxyTransport = null;\n            window.__nyxHttpProxyOnly = false;\n            activeEngine = \"libcurl\";\n            try { localStorage.setItem(\"nyx_wisp_last\", servers[s]); } catch (e) {}\n            setStatus(\"ready\", \"libcurl ready — \" + servers[s]);\n            return true;\n          }\n        } catch (e) {}\n      }\n      ready = true;\n      libcurl = null;\n      epoxyTransport = null;\n      window.__nyxHttpProxyOnly = true;\n      activeEngine = \"http\";\n      setStatus(\"ready\", \"HTTP proxy mode\");\n      return true;\n    })();\n    try {\n      return await curlPromise;\n    } catch (e) {\n      curlPromise = null;\n      throw e;\n    }\n  }\n\n  var HTTP_PROXY_BUILDERS = [\n    function (u) { return { url: \"https://api.allorigins.win/get?url=\" + encodeURIComponent(u), parse: \"allorigins\" }; },\n    function (u) { return { url: \"https://api.allorigins.win/raw?url=\" + encodeURIComponent(u), parse: \"raw\" }; },\n    function (u) { return { url: \"https://corsproxy.org/?\" + encodeURIComponent(u), parse: \"raw\" }; },\n    function (u) { return { url: \"https://api.codetabs.com/v1/proxy?quest=\" + encodeURIComponent(u), parse: \"raw\" }; },\n    function (u) { return { url: \"https://cors.eu.org/\" + u, parse: \"raw\" }; }\n  ];\n\n  async function httpProxyFetch(url) {\n    var lastErr = null;\n    for (var i = 0; i < HTTP_PROXY_BUILDERS.length; i++) {\n      try {\n        var spec = HTTP_PROXY_BUILDERS[i](url);\n        var res = await Promise.race([\n          fetch(spec.url, { method: \"GET\", redirect: \"follow\", credentials: \"omit\", mode: \"cors\" }),\n          new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 8000); })\n        ]);\n        if (!res || (!res.ok && res.status >= 400)) {\n          lastErr = new Error(\"HTTP \" + (res && res.status));\n          continue;\n        }\n        var text = await res.text();\n        if (spec.parse === \"allorigins\") {\n          try {\n            var j = JSON.parse(text);\n            if (j && typeof j.contents === \"string\") text = j.contents;\n            else continue;\n          } catch (e) { continue; }\n        }\n        if (!text || text.length < 20) continue;\n        if (/valid API key is required|Access denied/i.test(text) && text.length < 500) continue;\n        return {\n          ok: true,\n          status: 200,\n          url: url,\n          headers: {\n            get: function (k) {\n              if (String(k || \"\").toLowerCase() === \"content-type\") return \"text/html; charset=utf-8\";\n              return null;\n            }\n          },\n          text: function () { return Promise.resolve(text); }\n        };\n      } catch (e) { lastErr = e; }\n    }\n    throw lastErr || new Error(\"All HTTP proxies failed\");\n  }\n\n  async function streamToText(body) {\n    if (body == null) return \"\";\n    if (typeof body === \"string\") return body;\n    if (body instanceof ArrayBuffer) return new TextDecoder().decode(body);\n    if (ArrayBuffer.isView && ArrayBuffer.isView(body)) return new TextDecoder().decode(body);\n    if (typeof body.text === \"function\") return await body.text();\n    if (typeof body.arrayBuffer === \"function\") return new TextDecoder().decode(await body.arrayBuffer());\n    if (typeof body.getReader === \"function\") {\n      var reader = body.getReader();\n      var chunks = [];\n      var total = 0;\n      while (true) {\n        var step = await reader.read();\n        if (step.done) break;\n        var v = step.value instanceof Uint8Array ? step.value : new Uint8Array(step.value);\n        chunks.push(v);\n        total += v.length;\n      }\n      var out = new Uint8Array(total);\n      var off = 0;\n      for (var i = 0; i < chunks.length; i++) { out.set(chunks[i], off); off += chunks[i].length; }\n      return new TextDecoder().decode(out);\n    }\n    return String(body);\n  }\n\n  async function proxyFetch(url, opts) {\n    try { await ensureCurl(); } catch (e) { window.__nyxHttpProxyOnly = true; }\n    var headers = Object.assign({\n      \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15\",\n      \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\",\n      \"Accept-Language\": \"en-US,en;q=0.9\"\n    }, (opts && opts.headers) || {});\n    var fetchOpts = Object.assign({ redirect: \"follow\" }, opts || {}, { headers: headers });\n\n    if (epoxyTransport && activeEngine === \"epoxy\" && !window.__nyxHttpProxyOnly) {\n      try {\n        var res = await Promise.race([\n          epoxyTransport.request(new URL(url), (fetchOpts.method || \"GET\").toUpperCase(), fetchOpts.body || null, headers, null),\n          new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 20000); })\n        ]);\n        var textBody = await streamToText(res.body);\n        var hdrs = res.headers || {};\n        return {\n          ok: res.status >= 200 && res.status < 400,\n          status: res.status || 200,\n          url: url,\n          headers: {\n            get: function (k) {\n              k = String(k || \"\").toLowerCase();\n              for (var key in hdrs) {\n                if (String(key).toLowerCase() === k) {\n                  var v = hdrs[key];\n                  return Array.isArray(v) ? v.join(\", \") : v;\n                }\n              }\n              if (k === \"content-type\") return \"text/html; charset=utf-8\";\n              return null;\n            }\n          },\n          text: function () { return Promise.resolve(textBody); }\n        };\n      } catch (e) {}\n    }\n\n    if (libcurl && typeof libcurl.fetch === \"function\" && !window.__nyxHttpProxyOnly) {\n      try {\n        return await Promise.race([\n          libcurl.fetch(url, fetchOpts),\n          new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 20000); })\n        ]);\n      } catch (e) {\n        setStatus(\"\", \"Wisp blocked — HTTP fallback…\");\n      }\n    }\n    return httpProxyFetch(url);\n  }\n\n  function rewriteHtml(body, pageUrl) {\n    try {\n      var base = new URL(pageUrl);\n      body = body.replace(/<meta[^>]+http-equiv=[\"']?Content-Security-Policy[^>]*>/gi, \"\");\n      body = body.replace(/<base[^>]*>/gi, \"\");\n      var baseTag = '<base href=\"' + base.href + '\">';\n      if (/<head[^>]*>/i.test(body)) body = body.replace(/<head([^>]*)>/i, \"<head$1>\" + baseTag);\n      else body = baseTag + body;\n      var bridge = '<script>(function(){function abs(u){try{return new URL(u,document.baseURI||location.href).href}catch(e){return u}}'\n        + 'document.addEventListener(\"click\",function(e){var a=e.target&&e.target.closest&&e.target.closest(\"a[href]\");if(!a)return;'\n        + 'var h=a.getAttribute(\"href\");if(!h||h.charAt(0)===\"#\")return;if(/^javascript:/i.test(h))return;'\n        + 'e.preventDefault();e.stopPropagation();try{parent.postMessage({type:\"safari-navigate\",url:abs(h)},\"*\")}catch(err){}},true);'\n        + '})();<\\/script>';\n      if (/<body[^>]*>/i.test(body)) body = body.replace(/<body([^>]*)>/i, \"<body$1>\" + bridge);\n      else body = bridge + body;\n    } catch (e) {}\n    return body;\n  }\n\n\n  function openFallbackViewer(u) {\n    if (start) start.style.display = \"none\";\n    if (view) view.style.display = \"block\";\n    try { view.removeAttribute(\"srcdoc\"); } catch (e) {}\n    var list = [\n      \"https://translate.google.com/translate?hl=en&sl=auto&tl=en&u=\" + encodeURIComponent(u),\n      u\n    ];\n    var i = 0;\n    setStatus(\"ready\", \"Opening…\");\n    function next() {\n      if (i >= list.length) {\n        showBoot(\"Couldn't load this page\");\n        setStatus(\"error\", \"Load failed\");\n        setTimeout(hideBoot, 2000);\n        try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n        return;\n      }\n      var src = list[i++];\n      showBoot(\"Opening…\");\n      view.onload = function () {\n        hideBoot();\n        currentPageUrl = u;\n        try { parent.postMessage({ type: \"safari-state\", title: hostLabel(u), url: u }, \"*\"); } catch (e) {}\n        try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n      };\n      view.onerror = function () { next(); };\n      view.src = src;\n      setTimeout(function () {\n        if (view.getAttribute(\"src\") === src) {\n          hideBoot();\n          try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n        }\n      }, 5000);\n    }\n    next();\n  }\n\nfunction decodeUddg(href) {\n    try {\n      var u = new URL(href, \"https://duckduckgo.com\");\n      var uddg = u.searchParams.get(\"uddg\");\n      if (uddg) return decodeURIComponent(uddg);\n    } catch (e) {}\n    return href;\n  }\n\n  function parseDdgHtml(html) {\n    var results = [];\n    var reA = /class=\"result__a\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)<\\/a>/gi;\n    var m;\n    while ((m = reA.exec(html))) {\n      var href = decodeUddg(m[1].replace(/&amp;/g, \"&\"));\n      var title = m[2].replace(/<[^>]+>/g, \"\").trim();\n      if (href && title && !/^https?:\\/\\/(duckduckgo|www\\.duckduckgo)\\.com/i.test(href)) {\n        results.push({ href: href, title: title, snippet: \"\" });\n      }\n    }\n    return results;\n  }\n\n  async function searchDuckDuckGo(query) {\n    var q = String(query || \"\").trim();\n    if (!q) return { query: q, abstract: null, results: [] };\n    var abstract = null;\n    var results = [];\n    try {\n      var apiUrl = \"https://api.duckduckgo.com/?q=\" + encodeURIComponent(q)\n        + \"&format=json&no_redirect=1&no_html=1&skip_disambig=1\";\n      var res = await proxyFetch(apiUrl, { headers: { \"Accept\": \"application/json\" } });\n      var text = await res.text();\n      var data = JSON.parse(text);\n      if (data.AbstractText || data.Heading) {\n        abstract = {\n          heading: data.Heading || q,\n          text: data.AbstractText || \"\",\n          url: data.AbstractURL || \"\",\n          source: data.AbstractSource || \"\"\n        };\n      }\n    } catch (e) {}\n    try {\n      var htmlUrl = \"https://html.duckduckgo.com/html/?q=\" + encodeURIComponent(q);\n      var res2 = await proxyFetch(htmlUrl);\n      results = parseDdgHtml(await res2.text());\n    } catch (e) {}\n    return { query: q, abstract: abstract, results: results.slice(0, 12) };\n  }\n\n  function renderSearchPage(data) {\n    var q = data.query || \"\";\n    var abs = data.abstract;\n    var results = data.results || [];\n    var absHtml = \"\";\n    if (abs && (abs.text || abs.heading)) {\n      absHtml = '<div class=\"card abstract\"><div class=\"abs-title\">' + esc(abs.heading || \"\") + '</div>'\n        + (abs.text ? '<p>' + esc(abs.text) + '</p>' : '')\n        + (abs.url ? '<a class=\"abs-link\" data-nav=\"' + esc(abs.url) + '\" href=\"' + esc(abs.url) + '\">More</a>' : '')\n        + '</div>';\n    }\n    var list = \"\";\n    if (results.length) {\n      list = results.map(function (r) {\n        var host = \"\";\n        try { host = new URL(r.href).hostname.replace(/^www\\./, \"\"); } catch (e) { host = r.href; }\n        return '<div class=\"card result\">'\n          + '<a class=\"title\" data-nav=\"' + esc(r.href) + '\" href=\"' + esc(r.href) + '\">' + esc(r.title) + '</a>'\n          + '<div class=\"url\">' + esc(host) + '</div>'\n          + (r.snippet ? '<div class=\"snippet\">' + esc(r.snippet) + '</div>' : '')\n          + '</div>';\n      }).join(\"\");\n    } else {\n      list = '<div class=\"card empty\">No results. Try different words or a full URL.</div>';\n    }\n    return '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">'\n      + '<title>' + esc(q) + ' — Search</title>'\n      + '<style>'\n      + 'body{margin:0;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#f5f5f7;color:#1d1d1f;padding:16px}'\n      + '.bar{display:flex;gap:8px;margin-bottom:16px}.bar input{flex:1;height:40px;border-radius:10px;border:1px solid #d2d2d7;padding:0 14px;font-size:15px}'\n      + '.bar button{height:40px;padding:0 16px;border:none;border-radius:10px;background:#007aff;color:#fff;font-weight:600;cursor:pointer}'\n      + '.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid rgba(0,0,0,.06)}'\n      + '.title{color:#0060df;font-size:16px;font-weight:600;text-decoration:none}.url{font-size:12px;color:#0d7a3f}.snippet{font-size:13px;color:#3a3a3c}'\n      + '.empty{color:#6e6e73;text-align:center;padding:24px}'\n      + '</style></head><body>'\n      + '<div class=\"bar\"><input id=\"q\" type=\"search\" value=\"' + esc(q) + '\"><button type=\"button\" id=\"go\">Search</button></div>'\n      + absHtml + list\n      + '<script>(function(){function send(u){try{parent.postMessage({type:\"safari-navigate\",url:u},\"*\")}catch(e){}}'\n      + 'document.getElementById(\"go\").onclick=function(){var v=document.getElementById(\"q\").value.trim();if(v)send(\"search:\"+v)};'\n      + 'document.getElementById(\"q\").addEventListener(\"keydown\",function(e){if(e.key===\"Enter\"){e.preventDefault();document.getElementById(\"go\").click()}});'\n      + 'document.addEventListener(\"click\",function(e){var a=e.target.closest&&e.target.closest(\"[data-nav]\");if(!a)return;e.preventDefault();send(a.getAttribute(\"data-nav\"))},true);'\n      + '})();<\\/script></body></html>';\n  }\n\n  async function navigate(raw) {\n    var u = normalizeUrl(raw);\n    try { parent.postMessage({ type: \"safari-progress-start\" }, \"*\"); } catch (e) {}\n    if (!u) {\n      showStart();\n      try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n      return;\n    }\n    // Heavy SPAs (TikTok etc.) need full Scramjet — same stack as index 36 loader\n    try {\n      var host = \"\";\n      try { host = new URL(u).hostname.toLowerCase(); } catch (e2) {}\n      var needsSJ = /(?:^|\\.)(tiktok\\.com|youtube\\.com|youtu\\.be|instagram\\.com|facebook\\.com|fb\\.com|netflix\\.com|discord\\.com|twitch\\.tv|reddit\\.com|x\\.com|twitter\\.com)$/i.test(host);\n      if (needsSJ) {\n        showBoot(\"Opening via Scramjet…\");\n        try { parent.postMessage({ type: \"safari-scramjet-nav\", url: u }, \"*\"); } catch (e3) {}\n        return;\n      }\n    } catch (e4) {}\n    showBoot(\"Loading…\");\n    try {\n      if (/^search:/i.test(u)) {\n        var q = u.slice(7).trim() || \"DuckDuckGo\";\n        if (start) start.style.display = \"none\";\n        if (view) view.style.display = \"block\";\n        try { parent.postMessage({ type: \"safari-state\", title: q + \" — Search\", url: \"search:\" + q }, \"*\"); } catch (e) {}\n        var data = await searchDuckDuckGo(q);\n        view.removeAttribute(\"src\");\n        view.srcdoc = renderSearchPage(data);\n        currentPageUrl = \"search:\" + q;\n        hideBoot();\n        try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n        return;\n      }\n\n      try { await ensureCurl(); } catch (e) { window.__nyxHttpProxyOnly = true; }\n      if (start) start.style.display = \"none\";\n      if (view) view.style.display = \"block\";\n      try { parent.postMessage({ type: \"safari-state\", title: hostLabel(u), url: u }, \"*\"); } catch (e) {}\n      var res = await proxyFetch(u);\n      var body = await res.text();\n      var ctype = (res.headers && res.headers.get && res.headers.get(\"content-type\")) || \"\";\n      var finalUrl = (res.url && String(res.url)) || u;\n      if (ctype.indexOf(\"text/html\") !== -1 || /^\\s*</.test(body)) {\n        body = rewriteHtml(body, finalUrl);\n        view.removeAttribute(\"src\");\n        view.srcdoc = body;\n      } else {\n        view.srcdoc = \"<pre style='padding:16px;white-space:pre-wrap'>\" + esc(body) + \"</pre>\";\n      }\n      currentPageUrl = finalUrl;\n      try { parent.postMessage({ type: \"safari-state\", title: hostLabel(finalUrl), url: finalUrl }, \"*\"); } catch (e) {}\n      try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n      hideBoot();\n    } catch (e) {\n      console.warn(\"navigate failed\", e);\n      openFallbackViewer(u);\n    }\n  }\n\n  function goFromSearch() {\n    if (!startSearch) return;\n    var v = startSearch.value;\n    if (!String(v || \"\").trim()) {\n      startSearch.focus();\n      return;\n    }\n    navigate(v);\n  }\n\n  if (startSearch) {\n    startSearch.addEventListener(\"keydown\", function (e) {\n      if (e.key === \"Enter\") {\n        e.preventDefault();\n        e.stopPropagation();\n        goFromSearch();\n      }\n    });\n  }\n  if (goBtn) {\n    goBtn.addEventListener(\"click\", function (e) {\n      e.preventDefault();\n      e.stopPropagation();\n      goFromSearch();\n    });\n  }\n  document.querySelectorAll(\".fav\").forEach(function (btn) {\n    btn.addEventListener(\"click\", function () {\n      var url = btn.getAttribute(\"data-url\");\n      if (url === \"search:DuckDuckGo\") {\n        if (startSearch) startSearch.focus();\n        return;\n      }\n      navigate(url);\n    });\n  });\n  window.addEventListener(\"message\", function (ev) {\n    var d = ev.data;\n    if (!d || typeof d !== \"object\") return;\n    if (d.type === \"safari-navigate\") navigate(d.url);\n    if (d.type === \"safari-reload\" && currentPageUrl) navigate(currentPageUrl);\n    if (d.type === \"safari-home\") showStart();\n    if (d.type === \"safari-theme\") {\n      document.documentElement.classList.toggle(\"dark\", !!d.dark);\n    }\n  });\n\n  try {\n    localStorage.removeItem(\"nyx_safari_school_wifi\");\n  } catch (e) {}\n  try { parent.postMessage({ type: \"safari-ready\" }, \"*\"); } catch (e) {}\n  showStart();\n  ensureCurl().then(function () {\n    setStatus(\"ready\", activeEngine === \"http\" ? \"HTTP proxy mode\" : \"Proxy ready\");\n  }).catch(function () {\n    setStatus(\"error\", \"Proxy offline — will retry on search\");\n  });\n})();\n<\/script>\n</body>\n</html>\n";
+    const NYX_PROXY_HTML = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Start Page</title>\n<style>\n:root{color-scheme:light dark;--bg:#e8e8ed;--text:#1d1d1f;--muted:#6e6e73;--accent:#007aff;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",system-ui,sans-serif}\n*{box-sizing:border-box}\nhtml,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text)}\n.page{height:100%;display:flex;flex-direction:column}\n#content{flex:1;min-height:0;position:relative;overflow:visible}\n#view{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}\n#start{height:100%;overflow:visible;display:flex;flex-direction:column;align-items:center;padding:48px 24px 40px}\n.start-search-wrap{width:min(560px,92%);margin-bottom:20px;position:relative}\n.start-search{width:100%;height:44px;border-radius:12px;border:none;background:rgba(255,255,255,.9);box-shadow:0 1px 3px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);padding:0 88px 0 40px;font-size:15px;color:var(--text);outline:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238e8e93' viewBox='0 0 24 24'%3E%3Cpath d='M11 4a7 7 0 015.52 11.27l4.1 4.1a1 1 0 01-1.41 1.42l-4.1-4.1A7 7 0 1111 4zm0 2a5 5 0 100 10 5 5 0 000-10z'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:14px center}\n.start-search:focus{box-shadow:0 0 0 3px rgba(0,122,255,.25),0 1px 3px rgba(0,0,0,.08)}\n.search-go{position:absolute;right:6px;top:6px;height:32px;padding:0 14px;border:none;border-radius:8px;background:#007aff;color:#fff;font-weight:600;font-size:13px;cursor:pointer}\n.search-go:hover{background:#0066d6}\n.favorites-label{width:min(720px,96%);font-size:22px;font-weight:700;margin:16px 0 18px}\n.favorites{width:min(720px,96%);display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:18px 12px;justify-items:center}\n@media(max-width:700px){.favorites{grid-template-columns:repeat(4,minmax(0,1fr))}}\n.fav{display:flex;flex-direction:column;align-items:center;gap:8px;border:none;background:transparent;cursor:pointer;padding:0;color:var(--text);font:inherit}\n.fav-icon{width:56px;height:56px;border-radius:14px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);display:grid;place-items:center;font-size:22px;font-weight:700;overflow:hidden}\n.fav-icon img{width:28px;height:28px;object-fit:contain}\n.fav-icon.bing{background:#00809d;color:#fff}\n.fav-icon.fb{background:#1877f2;color:#fff;font-size:26px}\n.fav-icon.tw{background:#e7e7e8;color:#1d1d1f;font-weight:800}\n.fav span{font-size:12px;color:var(--muted)}\n.boot{position:absolute;inset:0;display:none;place-items:center;background:rgba(255,255,255,.55);backdrop-filter:blur(14px);z-index:2}\n.boot.show{display:grid}\n.boot-inner{text-align:center;color:var(--muted);font-size:13px}\n.spinner{width:26px;height:26px;margin:0 auto 10px;border:2px solid rgba(0,0,0,.08);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}\n@keyframes spin{to{transform:rotate(360deg)}}\n.proxy-status{margin-top:24px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}\n.proxy-status .dot{width:8px;height:8px;border-radius:50%;background:#8e8e93}\n.proxy-status.ready .dot{background:#30d158}\n.proxy-status.error .dot{background:#ff453a}\nhtml.dark,html.dark body{background:#1c1c1e!important;color:#f5f5f7!important}\nhtml.dark #start{background:#1c1c1e}\nhtml.dark .start-search{background:rgba(0,0,0,.4)!important;color:#f5f5f7!important;box-shadow:0 0 0 1px rgba(255,255,255,.1)!important}\nhtml.dark .fav-icon{background:#2c2c2e!important}\nhtml.dark .boot{background:rgba(28,28,30,.55)}\n.start-search-wrap{position:relative;z-index:20}\n#startSuggest{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:9999;background:rgba(246,246,246,.96);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border-radius:10px;border:1px solid rgba(0,0,0,.12);box-shadow:0 12px 40px rgba(0,0,0,.2);padding:4px 0;max-height:380px;overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",sans-serif;color:#1d1d1f}\n#startSuggest.open{display:block}\n#startSuggest .sg-label{padding:6px 14px 4px;font-size:11px;color:#8e8e93;font-weight:500}\n#startSuggest .sg-item{display:flex;align-items:center;gap:10px;width:100%;padding:7px 14px;border:0;background:transparent;color:#1d1d1f;font-size:13px;text-align:left;cursor:default;font-family:inherit}\n#startSuggest .sg-item:hover,#startSuggest .sg-item.active{background:rgba(0,0,0,.06)}\n#startSuggest .sg-ico{opacity:.4;flex-shrink:0}\n</style>\n</head>\n<body>\n<div class=\"page\"><div id=\"content\">\n<div id=\"start\">\n  <div class=\"start-search-wrap\">\n    <input class=\"start-search\" id=\"startSearch\" type=\"text\" placeholder=\"Search DuckDuckGo or enter URL\" spellcheck=\"false\" autocomplete=\"off\">\n    <button type=\"button\" class=\"search-go\" id=\"startSearchGo\">Search</button>\n    <div id=\"startSuggest\" role=\"listbox\"></div>\n  </div>\n  <div class=\"favorites-label\">Favorites</div>\n  <div class=\"favorites\">\n    <button class=\"fav\" data-url=\"https://www.apple.com\"><div class=\"fav-icon\"><img src=\"https://www.apple.com/favicon.ico\" alt=\"\"></div><span>Apple</span></button>\n    <button class=\"fav\" data-url=\"https://www.icloud.com\"><div class=\"fav-icon\"><img src=\"https://www.icloud.com/favicon.ico\" alt=\"\"></div><span>iCloud</span></button>\n    <button class=\"fav\" data-url=\"search:DuckDuckGo\"><div class=\"fav-icon\" style=\"font-size:18px\">🦆</div><span>DuckDuckGo</span></button>\n    <button class=\"fav\" data-url=\"https://www.wikipedia.org\"><div class=\"fav-icon\"><img src=\"https://www.wikipedia.org/static/favicon/wikipedia.ico\" alt=\"\"></div><span>Wikipedia</span></button>\n    <button class=\"fav\" data-url=\"https://www.google.com\"><div class=\"fav-icon\"><img src=\"https://www.google.com/favicon.ico\" alt=\"\"></div><span>Google</span></button>\n    <button class=\"fav\" data-url=\"https://www.bing.com\"><div class=\"fav-icon bing\">B</div><span>Bing</span></button>\n    <button class=\"fav\" data-url=\"https://www.facebook.com\"><div class=\"fav-icon fb\">f</div><span>Facebook</span></button>\n    <button class=\"fav\" data-url=\"https://www.tiktok.com/\"><div class=\"fav-icon\" style=\"background:#010101;color:#fff\">T</div><span>TikTok</span></button>\n    <button class=\"fav\" data-url=\"https://www.youtube.com/\"><div class=\"fav-icon\" style=\"background:#ff0000;color:#fff\">▶</div><span>YouTube</span></button>\n    <button class=\"fav\" data-url=\"https://x.com\"><div class=\"fav-icon tw\">X</div><span>X</span></button>\n  </div>\n  <div class=\"proxy-status\" id=\"proxyStatus\"><span class=\"dot\"></span><span id=\"proxyStatusText\">Connecting proxy…</span></div>\n</div>\n<iframe id=\"view\" title=\"Page\" allow=\"fullscreen; autoplay; encrypted-media; picture-in-picture\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>\n<div class=\"boot\" id=\"boot\"><div class=\"boot-inner\"><div class=\"spinner\"></div><div id=\"bootMsg\">Loading…</div></div></div>\n</div></div>\n\n<script>\n(function () {\n  const SERVERS = [\n    \"wss://cdn.northstreetumc.org/adblock/\",\n    \"wss://cdn.vipersfutbol.com/adblock/\",\n    \"wss://cdn.pcesc.org/adblock/\",\n    \"wss://cdn.kcchallengevbc.com/adblock/\",\n    \"wss://cdn.slcbmooc.org/adblock/\",\n    \"wss://athollcottage.com/connection/\",\n    \"wss://kristenblackburnvolleyballcamps.com/socket/\",\n    \"wss://southpadreislandkiteboarding/socket/\",\n    \"wss://wisp.mercurywork.shop/\",\n    \"wss://wisp.mercurywork.shop/wisp/\",\n    \"wss://anura.pro/\",\n    \"wss://wisp.terbiumon.top/wisp/\",\n    \"wss://wisp.smartfoloo.space/\"\n  ];\n  const start = document.getElementById(\"start\");\n  const view = document.getElementById(\"view\");\n  const boot = document.getElementById(\"boot\");\n  const bootMsg = document.getElementById(\"bootMsg\");\n  const startSearch = document.getElementById(\"startSearch\");\n  const goBtn = document.getElementById(\"startSearchGo\");\n  const proxyStatus = document.getElementById(\"proxyStatus\");\n  const proxyStatusText = document.getElementById(\"proxyStatusText\");\n\n  let libcurl = null;\n  let epoxyTransport = null;\n  let ready = false;\n  let currentPageUrl = \"\";\n  let curlPromise = null;\n  let activeEngine = \"libcurl\";\n\n  function setStatus(state, text) {\n    if (proxyStatus) {\n      proxyStatus.classList.remove(\"ready\", \"error\");\n      if (state) proxyStatus.classList.add(state);\n    }\n    if (proxyStatusText) proxyStatusText.textContent = text || \"\";\n  }\n  function showStart() {\n    if (start) start.style.display = \"flex\";\n    if (view) {\n      view.style.display = \"none\";\n      try { view.removeAttribute(\"src\"); view.removeAttribute(\"srcdoc\"); } catch (e) {}\n    }\n    if (boot) boot.classList.remove(\"show\");\n    try { parent.postMessage({ type: \"safari-state\", title: \"Start Page\", url: \"\" }, \"*\"); } catch (e) {}\n  }\n  function showBoot(msg) {\n    if (boot) boot.classList.add(\"show\");\n    if (bootMsg) bootMsg.textContent = msg || \"Loading…\";\n  }\n  function hideBoot() { if (boot) boot.classList.remove(\"show\"); }\n\n  function isProbablyUrl(u) {\n    if (/^https?:\\/\\//i.test(u)) return true;\n    if (u.startsWith(\"//\")) return true;\n    if (/^localhost\\b/i.test(u)) return true;\n    return /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+([/:?#].*)?$/i.test(u);\n  }\n\n  function normalizeUrl(raw) {\n    var u = String(raw || \"\").trim();\n    if (!u) return \"\";\n    if (/^search:/i.test(u)) return \"search:\" + u.slice(7).trim();\n    if (/^(tiktok|tt)$/i.test(u)) return \"https://www.tiktok.com/\";\n    if (/^youtube$|^yt$/i.test(u)) return \"https://www.youtube.com/\";\n    if (/^https?:\\/\\//i.test(u)) {\n      try { return new URL(u).href; } catch (e) { return u; }\n    }\n    if (u.startsWith(\"//\")) {\n      try { return new URL(\"https:\" + u).href; } catch (e) { return \"https:\" + u; }\n    }\n    if (isProbablyUrl(u)) {\n      try { return new URL(\"https://\" + u).href; } catch (e) { return \"https://\" + u; }\n    }\n    return \"search:\" + u;\n  }\n\n  function hostLabel(u) {\n    if (/^search:/i.test(u)) return \"Search\";\n    try { return new URL(u).hostname.replace(/^www\\./, \"\"); } catch (e) { return u; }\n  }\n\n  function esc(s) {\n    return String(s || \"\").replace(/[&<>\"']/g, function (c) {\n      return ({ \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\" })[c];\n    });\n  }\n\n  function getPreferredEngine() {\n    try {\n      if (localStorage.getItem(\"nyx_safari_proxy_engine\") === \"epoxy\") return \"epoxy\";\n    } catch (e) {}\n    return \"libcurl\";\n  }\n\n  async function ensureCurl() {\n    if (ready && ((activeEngine === \"libcurl\" && libcurl) || (activeEngine === \"epoxy\" && epoxyTransport) || window.__nyxHttpProxyOnly)) {\n      return true;\n    }\n    if (curlPromise) return curlPromise;\n    curlPromise = (async function () {\n      try {\n        if (localStorage.getItem(\"nyx_force_http_proxy\") === \"1\") {\n          ready = true; libcurl = null; epoxyTransport = null; window.__nyxHttpProxyOnly = true;\n          activeEngine = \"http\";\n          setStatus(\"ready\", \"HTTP proxy mode\");\n          return true;\n        }\n      } catch (e) {}\n\n      if (typeof WebSocket === \"undefined\") {\n        ready = true; libcurl = null; epoxyTransport = null; window.__nyxHttpProxyOnly = true;\n        activeEngine = \"http\";\n        setStatus(\"ready\", \"HTTP proxy mode\");\n        return true;\n      }\n\n      var servers = SERVERS.slice();\n      try {\n        var saved = localStorage.getItem(\"nyx_wisp\");\n        if (saved && String(saved).trim()) {\n          servers = [String(saved).trim()];\n        } else {\n          var lastGood = localStorage.getItem(\"nyx_wisp_last\");\n          if (lastGood) servers = [lastGood].concat(servers.filter(function (x) { return x !== lastGood; }));\n        }\n      } catch (e) {}\n\n      var want = getPreferredEngine();\n      activeEngine = want;\n      setStatus(\"\", \"Connecting \" + want + \"…\");\n\n      if (want === \"epoxy\") {\n        try {\n          var epoxyMod = null;\n          var epoxyImports = [\n            \"https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@2.1.27/dist/index.mjs\",\n            \"https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@2/dist/index.mjs\"\n          ];\n          for (var ei = 0; ei < epoxyImports.length; ei++) {\n            try { epoxyMod = await import(epoxyImports[ei]); break; } catch (e) {}\n          }\n          if (epoxyMod) {\n            var EpoxyCtor = epoxyMod.default || epoxyMod.EpoxyTransport || epoxyMod.EpoxyClient;\n            if (EpoxyCtor) {\n              for (var es = 0; es < Math.min(servers.length, 3); es++) {\n                try {\n                  var transport = new EpoxyCtor({ wisp: servers[es] });\n                  if (typeof transport.init === \"function\") {\n                    await Promise.race([\n                      transport.init(),\n                      new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 5000); })\n                    ]);\n                  }\n                  epoxyTransport = transport;\n                  libcurl = null;\n                  ready = true;\n                  window.__nyxHttpProxyOnly = false;\n                  activeEngine = \"epoxy\";\n                  try { localStorage.setItem(\"nyx_wisp_last\", servers[es]); } catch (e) {}\n                  setStatus(\"ready\", \"Epoxy ready — \" + servers[es]);\n                  return true;\n                } catch (e) {}\n              }\n            }\n          }\n        } catch (e) {}\n        setStatus(\"\", \"Epoxy failed — trying libcurl…\");\n      }\n\n      var mod = null;\n      var imports = [\n        \"https://cdn.jsdelivr.net/npm/libcurl.js@0.7.1/libcurl_full.mjs\",\n        \"https://cdn.jsdelivr.net/npm/libcurl.js@0.7.4/libcurl_full.mjs\",\n        \"https://cdn.jsdelivr.net/npm/libcurl.js@latest/libcurl_full.mjs\"\n      ];\n      for (var i = 0; i < imports.length; i++) {\n        try { mod = await import(imports[i]); break; } catch (e) {}\n      }\n      if (!mod) {\n        ready = true; libcurl = null; epoxyTransport = null; window.__nyxHttpProxyOnly = true;\n        activeEngine = \"http\";\n        setStatus(\"ready\", \"HTTP proxy mode\");\n        return true;\n      }\n      libcurl = mod.libcurl || mod.default || mod;\n      if (typeof libcurl.load_wasm === \"function\") {\n        try { await libcurl.load_wasm(); } catch (e) {}\n      }\n      for (var s = 0; s < servers.length; s++) {\n        try {\n          libcurl.set_websocket(servers[s]);\n          var r = await Promise.race([\n            libcurl.fetch(\"https://example.com/\", { redirect: \"follow\" }),\n            new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 4000); })\n          ]);\n          if (r && r.status >= 200 && r.status < 500) {\n            ready = true;\n            epoxyTransport = null;\n            window.__nyxHttpProxyOnly = false;\n            activeEngine = \"libcurl\";\n            try { localStorage.setItem(\"nyx_wisp_last\", servers[s]); } catch (e) {}\n            setStatus(\"ready\", \"libcurl ready — \" + servers[s]);\n            return true;\n          }\n        } catch (e) {}\n      }\n      ready = true;\n      libcurl = null;\n      epoxyTransport = null;\n      window.__nyxHttpProxyOnly = true;\n      activeEngine = \"http\";\n      setStatus(\"ready\", \"HTTP proxy mode\");\n      return true;\n    })();\n    try {\n      return await curlPromise;\n    } catch (e) {\n      curlPromise = null;\n      throw e;\n    }\n  }\n\n  var HTTP_PROXY_BUILDERS = [\n    function (u) { return { url: \"https://api.allorigins.win/get?url=\" + encodeURIComponent(u), parse: \"allorigins\" }; },\n    function (u) { return { url: \"https://api.allorigins.win/raw?url=\" + encodeURIComponent(u), parse: \"raw\" }; },\n    function (u) { return { url: \"https://corsproxy.org/?\" + encodeURIComponent(u), parse: \"raw\" }; },\n    function (u) { return { url: \"https://api.codetabs.com/v1/proxy?quest=\" + encodeURIComponent(u), parse: \"raw\" }; },\n    function (u) { return { url: \"https://cors.eu.org/\" + u, parse: \"raw\" }; }\n  ];\n\n  async function httpProxyFetch(url) {\n    var lastErr = null;\n    for (var i = 0; i < HTTP_PROXY_BUILDERS.length; i++) {\n      try {\n        var spec = HTTP_PROXY_BUILDERS[i](url);\n        var res = await Promise.race([\n          fetch(spec.url, { method: \"GET\", redirect: \"follow\", credentials: \"omit\", mode: \"cors\" }),\n          new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 8000); })\n        ]);\n        if (!res || (!res.ok && res.status >= 400)) {\n          lastErr = new Error(\"HTTP \" + (res && res.status));\n          continue;\n        }\n        var text = await res.text();\n        if (spec.parse === \"allorigins\") {\n          try {\n            var j = JSON.parse(text);\n            if (j && typeof j.contents === \"string\") text = j.contents;\n            else continue;\n          } catch (e) { continue; }\n        }\n        if (!text || text.length < 20) continue;\n        if (/valid API key is required|Access denied/i.test(text) && text.length < 500) continue;\n        return {\n          ok: true,\n          status: 200,\n          url: url,\n          headers: {\n            get: function (k) {\n              if (String(k || \"\").toLowerCase() === \"content-type\") return \"text/html; charset=utf-8\";\n              return null;\n            }\n          },\n          text: function () { return Promise.resolve(text); }\n        };\n      } catch (e) { lastErr = e; }\n    }\n    throw lastErr || new Error(\"All HTTP proxies failed\");\n  }\n\n  async function streamToText(body) {\n    if (body == null) return \"\";\n    if (typeof body === \"string\") return body;\n    if (body instanceof ArrayBuffer) return new TextDecoder().decode(body);\n    if (ArrayBuffer.isView && ArrayBuffer.isView(body)) return new TextDecoder().decode(body);\n    if (typeof body.text === \"function\") return await body.text();\n    if (typeof body.arrayBuffer === \"function\") return new TextDecoder().decode(await body.arrayBuffer());\n    if (typeof body.getReader === \"function\") {\n      var reader = body.getReader();\n      var chunks = [];\n      var total = 0;\n      while (true) {\n        var step = await reader.read();\n        if (step.done) break;\n        var v = step.value instanceof Uint8Array ? step.value : new Uint8Array(step.value);\n        chunks.push(v);\n        total += v.length;\n      }\n      var out = new Uint8Array(total);\n      var off = 0;\n      for (var i = 0; i < chunks.length; i++) { out.set(chunks[i], off); off += chunks[i].length; }\n      return new TextDecoder().decode(out);\n    }\n    return String(body);\n  }\n\n  async function proxyFetch(url, opts) {\n    try { await ensureCurl(); } catch (e) { window.__nyxHttpProxyOnly = true; }\n    var headers = Object.assign({\n      \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15\",\n      \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\",\n      \"Accept-Language\": \"en-US,en;q=0.9\"\n    }, (opts && opts.headers) || {});\n    var fetchOpts = Object.assign({ redirect: \"follow\" }, opts || {}, { headers: headers });\n\n    if (epoxyTransport && activeEngine === \"epoxy\" && !window.__nyxHttpProxyOnly) {\n      try {\n        var res = await Promise.race([\n          epoxyTransport.request(new URL(url), (fetchOpts.method || \"GET\").toUpperCase(), fetchOpts.body || null, headers, null),\n          new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 20000); })\n        ]);\n        var textBody = await streamToText(res.body);\n        var hdrs = res.headers || {};\n        return {\n          ok: res.status >= 200 && res.status < 400,\n          status: res.status || 200,\n          url: url,\n          headers: {\n            get: function (k) {\n              k = String(k || \"\").toLowerCase();\n              for (var key in hdrs) {\n                if (String(key).toLowerCase() === k) {\n                  var v = hdrs[key];\n                  return Array.isArray(v) ? v.join(\", \") : v;\n                }\n              }\n              if (k === \"content-type\") return \"text/html; charset=utf-8\";\n              return null;\n            }\n          },\n          text: function () { return Promise.resolve(textBody); }\n        };\n      } catch (e) {}\n    }\n\n    if (libcurl && typeof libcurl.fetch === \"function\" && !window.__nyxHttpProxyOnly) {\n      try {\n        return await Promise.race([\n          libcurl.fetch(url, fetchOpts),\n          new Promise(function (_, rej) { setTimeout(function () { rej(new Error(\"timeout\")); }, 20000); })\n        ]);\n      } catch (e) {\n        setStatus(\"\", \"Wisp blocked — HTTP fallback…\");\n      }\n    }\n    return httpProxyFetch(url);\n  }\n\n  function rewriteHtml(body, pageUrl) {\n    try {\n      var base = new URL(pageUrl);\n      body = body.replace(/<meta[^>]+http-equiv=[\"']?Content-Security-Policy[^>]*>/gi, \"\");\n      body = body.replace(/<base[^>]*>/gi, \"\");\n      var baseTag = '<base href=\"' + base.href + '\">';\n      if (/<head[^>]*>/i.test(body)) body = body.replace(/<head([^>]*)>/i, \"<head$1>\" + baseTag);\n      else body = baseTag + body;\n      var bridge = '<script>(function(){function abs(u){try{return new URL(u,document.baseURI||location.href).href}catch(e){return u}}'\n        + 'document.addEventListener(\"click\",function(e){var a=e.target&&e.target.closest&&e.target.closest(\"a[href]\");if(!a)return;'\n        + 'var h=a.getAttribute(\"href\");if(!h||h.charAt(0)===\"#\")return;if(/^javascript:/i.test(h))return;'\n        + 'e.preventDefault();e.stopPropagation();try{parent.postMessage({type:\"safari-navigate\",url:abs(h)},\"*\")}catch(err){}},true);'\n        + '})();<\\/script>';\n      if (/<body[^>]*>/i.test(body)) body = body.replace(/<body([^>]*)>/i, \"<body$1>\" + bridge);\n      else body = bridge + body;\n    } catch (e) {}\n    return body;\n  }\n\n\n  function openFallbackViewer(u) {\n    if (start) start.style.display = \"none\";\n    if (view) view.style.display = \"block\";\n    try { view.removeAttribute(\"srcdoc\"); } catch (e) {}\n    var list = [\n      \"https://translate.google.com/translate?hl=en&sl=auto&tl=en&u=\" + encodeURIComponent(u),\n      u\n    ];\n    var i = 0;\n    setStatus(\"ready\", \"Opening…\");\n    function next() {\n      if (i >= list.length) {\n        showBoot(\"Couldn't load this page\");\n        setStatus(\"error\", \"Load failed\");\n        setTimeout(hideBoot, 2000);\n        try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n        return;\n      }\n      var src = list[i++];\n      showBoot(\"Opening…\");\n      view.onload = function () {\n        hideBoot();\n        currentPageUrl = u;\n        try { parent.postMessage({ type: \"safari-state\", title: hostLabel(u), url: u }, \"*\"); } catch (e) {}\n        try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n      };\n      view.onerror = function () { next(); };\n      view.src = src;\n      setTimeout(function () {\n        if (view.getAttribute(\"src\") === src) {\n          hideBoot();\n          try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n        }\n      }, 5000);\n    }\n    next();\n  }\n\nfunction decodeUddg(href) {\n    try {\n      var u = new URL(href, \"https://duckduckgo.com\");\n      var uddg = u.searchParams.get(\"uddg\");\n      if (uddg) return decodeURIComponent(uddg);\n    } catch (e) {}\n    return href;\n  }\n\n  function parseDdgHtml(html) {\n    var results = [];\n    var reA = /class=\"result__a\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)<\\/a>/gi;\n    var m;\n    while ((m = reA.exec(html))) {\n      var href = decodeUddg(m[1].replace(/&amp;/g, \"&\"));\n      var title = m[2].replace(/<[^>]+>/g, \"\").trim();\n      if (href && title && !/^https?:\\/\\/(duckduckgo|www\\.duckduckgo)\\.com/i.test(href)) {\n        results.push({ href: href, title: title, snippet: \"\" });\n      }\n    }\n    return results;\n  }\n\n  async function searchDuckDuckGo(query) {\n    var q = String(query || \"\").trim();\n    if (!q) return { query: q, abstract: null, results: [] };\n    var abstract = null;\n    var results = [];\n    try {\n      var apiUrl = \"https://api.duckduckgo.com/?q=\" + encodeURIComponent(q)\n        + \"&format=json&no_redirect=1&no_html=1&skip_disambig=1\";\n      var res = await proxyFetch(apiUrl, { headers: { \"Accept\": \"application/json\" } });\n      var text = await res.text();\n      var data = JSON.parse(text);\n      if (data.AbstractText || data.Heading) {\n        abstract = {\n          heading: data.Heading || q,\n          text: data.AbstractText || \"\",\n          url: data.AbstractURL || \"\",\n          source: data.AbstractSource || \"\"\n        };\n      }\n    } catch (e) {}\n    try {\n      var htmlUrl = \"https://html.duckduckgo.com/html/?q=\" + encodeURIComponent(q);\n      var res2 = await proxyFetch(htmlUrl);\n      results = parseDdgHtml(await res2.text());\n    } catch (e) {}\n    return { query: q, abstract: abstract, results: results.slice(0, 12) };\n  }\n\n  function renderSearchPage(data) {\n    var q = data.query || \"\";\n    var abs = data.abstract;\n    var results = data.results || [];\n    var absHtml = \"\";\n    if (abs && (abs.text || abs.heading)) {\n      absHtml = '<div class=\"card abstract\"><div class=\"abs-title\">' + esc(abs.heading || \"\") + '</div>'\n        + (abs.text ? '<p>' + esc(abs.text) + '</p>' : '')\n        + (abs.url ? '<a class=\"abs-link\" data-nav=\"' + esc(abs.url) + '\" href=\"' + esc(abs.url) + '\">More</a>' : '')\n        + '</div>';\n    }\n    var list = \"\";\n    if (results.length) {\n      list = results.map(function (r) {\n        var host = \"\";\n        try { host = new URL(r.href).hostname.replace(/^www\\./, \"\"); } catch (e) { host = r.href; }\n        return '<div class=\"card result\">'\n          + '<a class=\"title\" data-nav=\"' + esc(r.href) + '\" href=\"' + esc(r.href) + '\">' + esc(r.title) + '</a>'\n          + '<div class=\"url\">' + esc(host) + '</div>'\n          + (r.snippet ? '<div class=\"snippet\">' + esc(r.snippet) + '</div>' : '')\n          + '</div>';\n      }).join(\"\");\n    } else {\n      list = '<div class=\"card empty\">No results. Try different words or a full URL.</div>';\n    }\n    return '<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">'\n      + '<title>' + esc(q) + ' — Search</title>'\n      + '<style>'\n      + 'body{margin:0;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#f5f5f7;color:#1d1d1f;padding:16px}'\n      + '.bar{display:flex;gap:8px;margin-bottom:16px}.bar input{flex:1;height:40px;border-radius:10px;border:1px solid #d2d2d7;padding:0 14px;font-size:15px}'\n      + '.bar button{height:40px;padding:0 16px;border:none;border-radius:10px;background:#007aff;color:#fff;font-weight:600;cursor:pointer}'\n      + '.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid rgba(0,0,0,.06)}'\n      + '.title{color:#0060df;font-size:16px;font-weight:600;text-decoration:none}.url{font-size:12px;color:#0d7a3f}.snippet{font-size:13px;color:#3a3a3c}'\n      + '.empty{color:#6e6e73;text-align:center;padding:24px}'\n      + '</style></head><body>'\n      + '<div class=\"bar\"><input id=\"q\" type=\"search\" value=\"' + esc(q) + '\"><button type=\"button\" id=\"go\">Search</button></div>'\n      + absHtml + list\n      + '<script>(function(){function send(u){try{parent.postMessage({type:\"safari-navigate\",url:u},\"*\")}catch(e){}}'\n      + 'document.getElementById(\"go\").onclick=function(){var v=document.getElementById(\"q\").value.trim();if(v)send(\"search:\"+v)};'\n      + 'document.getElementById(\"q\").addEventListener(\"keydown\",function(e){if(e.key===\"Enter\"){e.preventDefault();document.getElementById(\"go\").click()}});'\n      + 'document.addEventListener(\"click\",function(e){var a=e.target.closest&&e.target.closest(\"[data-nav]\");if(!a)return;e.preventDefault();send(a.getAttribute(\"data-nav\"))},true);'\n      + '})();<\\/script></body></html>';\n  }\n\n  async function navigate(raw) {\n    var u = normalizeUrl(raw);\n    try { parent.postMessage({ type: \"safari-progress-start\" }, \"*\"); } catch (e) {}\n    if (!u) {\n      showStart();\n      try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n      return;\n    }\n    // Heavy SPAs (TikTok etc.) need full Scramjet — same stack as index 36 loader\n    try {\n      var host = \"\";\n      try { host = new URL(u).hostname.toLowerCase(); } catch (e2) {}\n      var needsSJ = /(?:^|\\.)(tiktok\\.com|youtube\\.com|youtu\\.be|instagram\\.com|facebook\\.com|fb\\.com|netflix\\.com|discord\\.com|twitch\\.tv|reddit\\.com|x\\.com|twitter\\.com)$/i.test(host);\n      if (needsSJ) {\n        showBoot(\"Opening via Scramjet…\");\n        try { parent.postMessage({ type: \"safari-scramjet-nav\", url: u }, \"*\"); } catch (e3) {}\n        return;\n      }\n    } catch (e4) {}\n    showBoot(\"Loading…\");\n    try {\n      if (/^search:/i.test(u)) {\n        var q = u.slice(7).trim() || \"DuckDuckGo\";\n        if (start) start.style.display = \"none\";\n        if (view) view.style.display = \"block\";\n        try { parent.postMessage({ type: \"safari-state\", title: q + \" — Search\", url: \"search:\" + q }, \"*\"); } catch (e) {}\n        var data = await searchDuckDuckGo(q);\n        view.removeAttribute(\"src\");\n        view.srcdoc = renderSearchPage(data);\n        currentPageUrl = \"search:\" + q;\n        hideBoot();\n        try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n        return;\n      }\n\n      try { await ensureCurl(); } catch (e) { window.__nyxHttpProxyOnly = true; }\n      if (start) start.style.display = \"none\";\n      if (view) view.style.display = \"block\";\n      try { parent.postMessage({ type: \"safari-state\", title: hostLabel(u), url: u }, \"*\"); } catch (e) {}\n      var res = await proxyFetch(u);\n      var body = await res.text();\n      var ctype = (res.headers && res.headers.get && res.headers.get(\"content-type\")) || \"\";\n      var finalUrl = (res.url && String(res.url)) || u;\n      if (ctype.indexOf(\"text/html\") !== -1 || /^\\s*</.test(body)) {\n        body = rewriteHtml(body, finalUrl);\n        view.removeAttribute(\"src\");\n        view.srcdoc = body;\n      } else {\n        view.srcdoc = \"<pre style='padding:16px;white-space:pre-wrap'>\" + esc(body) + \"</pre>\";\n      }\n      currentPageUrl = finalUrl;\n      try { parent.postMessage({ type: \"safari-state\", title: hostLabel(finalUrl), url: finalUrl }, \"*\"); } catch (e) {}\n      try { parent.postMessage({ type: \"safari-progress-done\" }, \"*\"); } catch (e) {}\n      hideBoot();\n    } catch (e) {\n      console.warn(\"navigate failed\", e);\n      openFallbackViewer(u);\n    }\n  }\n\n  function goFromSearch() {\n    if (!startSearch) return;\n    var v = startSearch.value;\n    if (!String(v || \"\").trim()) {\n      startSearch.focus();\n      return;\n    }\n    navigate(v);\n  }\n\n  if (startSearch) {\n    var SG_DB = [\"kyrie irving\",\"kyrie irving stats\",\"kyrie irving shoes\",\"kyrie irving trade\",\"kyrie irving 76ers\",\"kyrie irving height\",\"kyrie irving contract\",\"kyrie irving age\",\"kyrie irving injury\",\"lebron james\",\"stephen curry\",\"nba scores\",\"apple\",\"apple.com\",\"icloud\",\"youtube\",\"wikipedia\",\"google\",\"gmail\",\"facebook\",\"twitter\",\"weather\",\"chatgpt\",\"github\",\"reddit\",\"amazon\",\"netflix\"];\n    function renderStartSuggest(q) {\n      var box = document.getElementById(\"startSuggest\");\n      if (!box) return;\n      q = String(q || \"\").trim();\n      if (!q) { box.classList.remove(\"open\"); box.innerHTML = \"\"; return; }\n      var ql = q.toLowerCase();\n      var out = []; var seen = {};\n      function add(s) { var k = s.toLowerCase(); if (seen[k]) return; seen[k] = 1; out.push(s); }\n      add(q);\n      SG_DB.forEach(function (s) { if (s.toLowerCase().indexOf(ql) === 0) add(s); });\n      SG_DB.forEach(function (s) { if (s.toLowerCase().indexOf(ql) > 0) add(s); });\n      out = out.slice(0, 10);\n      var h = \"<div class=\'sg-label\'>Google Suggestions</div>\";\n      out.forEach(function (s) {\n        var safe = String(s).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/\"/g, \"&quot;\");\n        h += \"<button type=\'button\' class=\'sg-item\' data-q=\'\" + safe + \"\'>\" +\n          \"<svg class=\'sg-ico\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'currentColor\'><path d=\'M10.5 3a7.5 7.5 0 015.917 12.094l4.244 4.245a1 1 0 01-1.414 1.414l-4.245-4.244A7.5 7.5 0 1110.5 3zm0 2a5.5 5.5 0 100 11 5.5 5.5 0 000-11z\'/></svg>\" +\n          \"<span>\" + safe + \"</span></button>\";\n      });\n      box.innerHTML = h;\n      box.classList.add(\"open\");\n    }\n    startSearch.addEventListener(\"input\", function () { renderStartSuggest(startSearch.value); });\n    startSearch.addEventListener(\"focus\", function () { if (startSearch.value.trim()) renderStartSuggest(startSearch.value); });\n    startSearch.addEventListener(\"keydown\", function (e) {\n      var box = document.getElementById(\"startSuggest\");\n      if (e.key === \"Enter\") {\n        e.preventDefault();\n        e.stopPropagation();\n        if (box) {\n          var active = box.querySelector(\".sg-item.active\");\n          if (active) startSearch.value = active.getAttribute(\"data-q\") || startSearch.value;\n          box.classList.remove(\"open\"); box.innerHTML = \"\";\n        }\n        goFromSearch();\n      } else if ((e.key === \"ArrowDown\" || e.key === \"ArrowUp\") && box && box.classList.contains(\"open\")) {\n        e.preventDefault();\n        var items = box.querySelectorAll(\".sg-item\");\n        if (!items.length) return;\n        var cur = box.querySelector(\".sg-item.active\");\n        var idx = cur ? Array.prototype.indexOf.call(items, cur) : -1;\n        if (e.key === \"ArrowDown\") idx = Math.min(items.length - 1, idx + 1);\n        else idx = Math.max(0, idx - 1);\n        items.forEach(function (el, i) { el.classList.toggle(\"active\", i === idx); });\n      } else if (e.key === \"Escape\" && box) {\n        box.classList.remove(\"open\"); box.innerHTML = \"\";\n      }\n    });\n    document.addEventListener(\"mousedown\", function (e) {\n      var item = e.target.closest && e.target.closest(\"#startSuggest .sg-item\");\n      if (!item) return;\n      e.preventDefault();\n      startSearch.value = item.getAttribute(\"data-q\") || \"\";\n      var box = document.getElementById(\"startSuggest\");\n      if (box) { box.classList.remove(\"open\"); box.innerHTML = \"\"; }\n      goFromSearch();\n    });\n  }if (goBtn) {\n    goBtn.addEventListener(\"click\", function (e) {\n      e.preventDefault();\n      e.stopPropagation();\n      goFromSearch();\n    });\n  }\n  document.querySelectorAll(\".fav\").forEach(function (btn) {\n    btn.addEventListener(\"click\", function () {\n      var url = btn.getAttribute(\"data-url\");\n      if (url === \"search:DuckDuckGo\") {\n        if (startSearch) startSearch.focus();\n        return;\n      }\n      navigate(url);\n    });\n  });\n  window.addEventListener(\"message\", function (ev) {\n    var d = ev.data;\n    if (!d || typeof d !== \"object\") return;\n    if (d.type === \"safari-navigate\") navigate(d.url);\n    if (d.type === \"safari-reload\" && currentPageUrl) navigate(currentPageUrl);\n    if (d.type === \"safari-home\") showStart();\n    if (d.type === \"safari-theme\") {\n      document.documentElement.classList.toggle(\"dark\", !!d.dark);\n    }\n  });\n\n  try {\n    localStorage.removeItem(\"nyx_safari_school_wifi\");\n  } catch (e) {}\n  try { parent.postMessage({ type: \"safari-ready\" }, \"*\"); } catch (e) {}\n  showStart();\n  ensureCurl().then(function () {\n    setStatus(\"ready\", activeEngine === \"http\" ? \"HTTP proxy mode\" : \"Proxy ready\");\n  }).catch(function () {\n    setStatus(\"error\", \"Proxy offline — will retry on search\");\n  });\n})();\n<\/script>\n</body>\n</html>\n";
 
 
     function nyxLauncherUrl() {
@@ -14169,7 +15337,357 @@ window.setDesktopBackground = setDesktopBackground;
         }
       }, 600);
     }
-    function openSafari() {
+
+    // ===== Finder =====
+    (function () {
+      const FOLDERS = {
+        recents: { title: "Recents", items: [] },
+        applications: {
+          title: "Applications",
+          items: [
+            { name: "Safari", size: "—", kind: "Application", date: "—" },
+            { name: "Calculator", size: "—", kind: "Application", date: "—" },
+            { name: "System Settings", size: "—", kind: "Application", date: "—" },
+            { name: "Terminal", size: "—", kind: "Application", date: "—" }
+          ]
+        },
+        desktop: { title: "Desktop", items: [] },
+        documents: { title: "Documents", items: [] },
+        downloads: { title: "Downloads", items: [] },
+        "macintosh-hd": {
+          title: "Macintosh HD",
+          items: [
+            { name: "Applications", size: "—", kind: "Folder", date: "—" },
+            { name: "Library", size: "—", kind: "Folder", date: "—" },
+            { name: "System", size: "—", kind: "Folder", date: "—" },
+            { name: "Users", size: "—", kind: "Folder", date: "—" }
+          ]
+        }
+      };
+      let currentFolder = "downloads";
+
+      function renderFolder(id) {
+        currentFolder = id || currentFolder;
+        const data = FOLDERS[currentFolder] || FOLDERS.downloads;
+        const title = document.getElementById("finder-title");
+        const list = document.getElementById("finder-list");
+        if (title) title.textContent = data.title;
+        document.querySelectorAll(".finder-side-item").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-folder") === currentFolder);
+        });
+        if (!list) return;
+        list.innerHTML = "";
+        if (!data.items || !data.items.length) {
+          const empty = document.createElement("div");
+          empty.className = "finder-list-empty";
+          empty.id = "finder-empty";
+          empty.textContent = "No items";
+          // zebra stripes background via CSS
+          list.appendChild(empty);
+          return;
+        }
+        data.items.forEach(function (it) {
+          const row = document.createElement("div");
+          row.className = "finder-list-row";
+          row.innerHTML =
+            '<span class="name"><span class="folder-icon">' +
+            (it.kind === "Folder" ? "📁" : it.kind === "Application" ? "📦" : "📄") +
+            "</span> " +
+            it.name +
+            "</span><span>" +
+            (it.size || "—") +
+            "</span><span>" +
+            (it.kind || "—") +
+            "</span><span>" +
+            (it.date || "—") +
+            "</span>";
+          row.addEventListener("click", function () {
+            list.querySelectorAll(".finder-list-row").forEach(function (r) {
+              r.classList.remove("selected");
+            });
+            row.classList.add("selected");
+          });
+          list.appendChild(row);
+        });
+      }
+
+      window.openFinder = function openFinder(folder) {
+        const win = document.getElementById("finder-window");
+        if (!win) return;
+        try {
+          if (typeof navbar !== "undefined" && navbar) navbar.style.display = "flex";
+          if (typeof launchpad !== "undefined" && launchpad) launchpad.style.display = "none";
+          if (typeof container !== "undefined" && container) container.style.display = "flex";
+        } catch (e) {}
+        win.style.display = "flex";
+        win.style.visibility = "visible";
+        win.style.opacity = "1";
+        win.classList.add("active");
+        win.classList.remove("minimized");
+        if (typeof setMenuAppName === "function") setMenuAppName("Finder");
+        if (typeof bringWindowToFront === "function") bringWindowToFront(win);
+        try {
+          const btn = document.querySelector('.dock-open-app-button[data-dock-id="finder"]');
+          const dot = btn && btn.querySelector(".dot");
+          if (dot) dot.classList.add("is-open");
+        } catch (e) {}
+        if (folder) currentFolder = folder;
+        renderFolder(currentFolder);
+        if (typeof updateMenuBarForApp === "function") updateMenuBarForApp("Finder");
+      };
+
+      window.closeFinder = function closeFinder() {
+        const win = document.getElementById("finder-window");
+        if (!win) return;
+        win.style.display = "none";
+        win.classList.remove("active", "is-maximized");
+        try {
+          const btn = document.querySelector('.dock-open-app-button[data-dock-id="finder"]');
+          const dot = btn && btn.querySelector(".dot");
+          if (dot) dot.classList.remove("is-open");
+        } catch (e) {}
+        if (typeof setMenuAppName === "function") setMenuAppName("Finder");
+      };
+
+      document.addEventListener("click", function (e) {
+        const side = e.target.closest && e.target.closest(".finder-side-item");
+        if (side) {
+          const id = side.getAttribute("data-folder");
+          if (id) renderFolder(id);
+        }
+        if (e.target.closest && e.target.closest(".close-finder")) {
+          closeFinder();
+        }
+        if (e.target.closest && e.target.closest(".min-finder")) {
+          const win = document.getElementById("finder-window");
+          if (win) {
+            win.style.display = "none";
+            win.classList.add("minimized");
+            win.classList.remove("active");
+          }
+        }
+        if (e.target.closest && e.target.closest(".max-finder, .full-finder")) {
+          const win = document.getElementById("finder-window");
+          if (win && typeof toggleMaximize === "function") toggleMaximize(win);
+        }
+        const dockFinder = e.target.closest && e.target.closest('[data-dock-id="finder"], [title="Finder"]');
+        if (dockFinder && dockFinder.classList.contains("dock-open-app-button")) {
+          e.preventDefault();
+          openFinder();
+        }
+      });
+
+      // Draggable
+      if (window.jQuery) {
+        try {
+          $("#finder-window").draggable({
+            handle: ".finder-toolbar, .window__taskbar",
+            cancel: "button, input, .finder-sidebar, .finder-list",
+            containment: "window"
+          });
+        } catch (e) {}
+      }
+    })();
+
+    // Menu bar app-specific items
+    function updateMenuBarForApp(appName) {
+      const isSafari = appName === "Safari";
+      const isFinder = !appName || appName === "Finder";
+      document.querySelectorAll(".safari-menu-extra").forEach(function (el) {
+        el.style.display = isSafari ? "flex" : "none";
+      });
+      document.querySelectorAll("#menu-file-ul .finder-only").forEach(function (el) {
+        el.style.display = isFinder ? "" : "none";
+      });
+      document.querySelectorAll("#menu-file-ul .safari-only").forEach(function (el) {
+        el.style.display = isSafari ? (el.classList.contains("menu-sep") ? "block" : "") : "none";
+      });
+      document.querySelectorAll("#menu-file-ul .generic-only").forEach(function (el) {
+        el.style.display = !isFinder && !isSafari ? (el.classList.contains("menu-sep") ? "block" : "") : "none";
+      });
+    }
+    window.updateMenuBarForApp = updateMenuBarForApp;
+
+    // Wire menu actions for Finder / Safari
+    document.addEventListener("click", function (e) {
+      const btn = e.target.closest && e.target.closest(".navbar .leftLi > ul button, .navbar button[data-action]");
+      if (!btn) return;
+      const action = btn.getAttribute("data-action");
+      if (!action) return;
+      if (action === "new-finder-window" || action === "new-window") {
+        if (typeof openFinder === "function") openFinder();
+      }
+      if (action === "new-folder") {
+        if (typeof openFinder === "function") openFinder();
+        // cosmetic: no real FS
+      }
+      if (action === "show-start-page") {
+        try {
+          const fr = document.getElementById("safari-frame");
+          if (fr && fr.contentWindow) fr.contentWindow.postMessage({ type: "safari-home" }, "*");
+        } catch (err) {}
+      }
+      if (action === "add-bookmark") {
+        if (typeof window.openBookmarkDialog === "function") window.openBookmarkDialog();
+      }
+      if (action === "show-bookmarks" || action === "edit-bookmarks") {
+        if (typeof window.openSafari === "function") window.openSafari();
+      }
+    });
+
+    // ===== Safari extras: What's New, suggestions, privacy banner =====
+    (function wireSafariExtras() {
+
+      // Rich suggestion corpus + smart completion (macOS Safari style)
+      const SUGGEST_DB = [
+        "kyrie irving", "kyrie irving stats", "kyrie irving shoes", "kyrie irving trade",
+        "kyrie irving 76ers", "kyrie irving height", "kyrie irving contract", "kyrie irving age",
+        "kyrie irving injury", "lebron james", "stephen curry", "nba standings", "nba scores",
+        "apple", "apple.com", "icloud", "macos sequoia", "iphone 16", "ipad pro", "airpods",
+        "chatgpt", "github", "stackoverflow", "wikipedia", "youtube", "netflix",
+        "weather", "weather today", "news", "maps", "translate", "calculator",
+        "how to", "what is", "best", "near me",
+        "google.com", "duckduckgo.com", "bing.com", "yahoo.com", "facebook.com", "twitter.com",
+        "amazon.com", "reddit.com", "linkedin.com", "instagram.com", "tiktok.com",
+        "gmail", "google maps", "google translate", "youtube music", "apple music",
+        "flight tracker", "stock market", "crypto", "bitcoin price"
+      ];
+      const SEARCH_ICON = '<span class="q-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10.5 3a7.5 7.5 0 015.917 12.094l4.244 4.245a1 1 0 01-1.414 1.414l-4.245-4.244A7.5 7.5 0 1110.5 3zm0 2a5.5 5.5 0 100 11 5.5 5.5 0 000-11z"/></svg></span>';
+
+      function buildSuggestions(raw) {
+        var q = String(raw || "").trim();
+        if (!q) return [];
+        var ql = q.toLowerCase();
+        var out = [];
+        var seen = {};
+        function add(s) {
+          var key = String(s).toLowerCase();
+          if (!key || seen[key]) return;
+          seen[key] = true;
+          out.push(s);
+        }
+        add(q);
+        var prefix = [];
+        var contains = [];
+        SUGGEST_DB.forEach(function (s) {
+          var sl = s.toLowerCase();
+          if (sl === ql) return;
+          if (sl.indexOf(ql) === 0) prefix.push(s);
+          else if (sl.indexOf(ql) > 0) contains.push(s);
+        });
+        prefix.forEach(add);
+        if (ql.length >= 2) {
+          [" near me", " wikipedia", " reddit"].forEach(function (suf) { add(q + suf); });
+          if (ql.indexOf(" ") < 0) {
+            add("how to " + q);
+            add("what is " + q);
+            if (ql.length >= 3) add(ql + ".com");
+          }
+        }
+        contains.forEach(add);
+        return out.slice(0, 9);
+      }
+
+      function highlightMatch(text, q) {
+        var t = String(text);
+        var ql = String(q || "").toLowerCase();
+        if (!ql) return t.replace(/</g, "&lt;");
+        var idx = t.toLowerCase().indexOf(ql);
+        if (idx < 0) return t.replace(/</g, "&lt;");
+        return t.slice(0, idx).replace(/</g, "&lt;") +
+          "<b>" + t.slice(idx, idx + ql.length).replace(/</g, "&lt;") + "</b>" +
+          t.slice(idx + ql.length).replace(/</g, "&lt;");
+      }
+
+      const urlInput = document.getElementById("safari-url");
+      const suggestBox = document.getElementById("safari-suggest");
+      if (urlInput && suggestBox) {
+        var activeIdx = -1;
+
+        function renderSuggest(q) {
+          var items = buildSuggestions(q);
+          if (!items.length) {
+            suggestBox.classList.remove("visible");
+            suggestBox.innerHTML = "";
+            activeIdx = -1;
+            return;
+          }
+          activeIdx = -1;
+          var h = '<div class="safari-suggest-label">Google Suggestions</div>';
+          items.forEach(function (s, i) {
+            h += '<button type="button" class="safari-suggest-item" data-q="' +
+              String(s).replace(/"/g, "&quot;") + '" data-idx="' + i + '">' +
+              SEARCH_ICON + '<span class="q-text">' + highlightMatch(s, q) + "</span></button>";
+          });
+          suggestBox.innerHTML = h;
+          suggestBox.classList.add("visible");
+          try {
+            var urlbar = urlInput.closest(".safari-urlbar") || urlInput;
+            var br = urlbar.getBoundingClientRect();
+            suggestBox.style.position = "fixed";
+            suggestBox.style.top = (br.bottom + 4) + "px";
+            suggestBox.style.left = br.left + "px";
+            suggestBox.style.width = Math.max(br.width, 360) + "px";
+            suggestBox.style.right = "auto";
+            suggestBox.style.zIndex = "100000";
+          } catch (e) {}
+        }
+
+        function pickSuggest(q) {
+          if (!q) return;
+          urlInput.value = q;
+          suggestBox.classList.remove("visible");
+          try {
+            urlInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+          } catch (err) {}
+        }
+
+        urlInput.addEventListener("input", function () { renderSuggest(urlInput.value); });
+        urlInput.addEventListener("focus", function () {
+          if (urlInput.value.trim()) renderSuggest(urlInput.value);
+        });
+        urlInput.addEventListener("blur", function () {
+          setTimeout(function () { suggestBox.classList.remove("visible"); }, 180);
+        });
+        urlInput.addEventListener("keydown", function (e) {
+          if (!suggestBox.classList.contains("visible")) return;
+          var items = suggestBox.querySelectorAll(".safari-suggest-item");
+          if (!items.length) return;
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            activeIdx = Math.min(items.length - 1, activeIdx + 1);
+            items.forEach(function (el, i) { el.classList.toggle("active", i === activeIdx); });
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            activeIdx = Math.max(0, activeIdx - 1);
+            items.forEach(function (el, i) { el.classList.toggle("active", i === activeIdx); });
+          } else if (e.key === "Enter" && activeIdx >= 0) {
+            e.preventDefault();
+            pickSuggest(items[activeIdx].getAttribute("data-q"));
+          } else if (e.key === "Escape") {
+            suggestBox.classList.remove("visible");
+          }
+        });
+        suggestBox.addEventListener("mousedown", function (e) {
+          var item = e.target.closest(".safari-suggest-item");
+          if (!item) return;
+          e.preventDefault();
+          pickSuggest(item.getAttribute("data-q") || "");
+        });
+      }
+
+      // When menu app name set to Safari
+      const _set = window.setMenuAppName;
+      if (typeof _set === "function") {
+        window.setMenuAppName = function (name) {
+          _set(name);
+          if (typeof updateMenuBarForApp === "function") updateMenuBarForApp(name);
+        };
+      }
+    })();
+
+
+        function openSafari() {
       window.openSafari = openSafari;
       if (typeof setMenuAppName === "function") setMenuAppName("Safari");
       // Pre-warm Scramjet so TikTok / YouTube open faster
@@ -14201,11 +15719,10 @@ window.setDesktopBackground = setDesktopBackground;
       win.classList.add("active");
       if (pt) pt.style.display = "block";
       try { if (typeof bringWindowToFront === "function") bringWindowToFront(win); else if (win.parentElement && !(win.querySelector && win.querySelector("iframe"))) win.parentElement.appendChild(win); } catch (e) {}
-      // Keep force-http flag in sync with Settings (avoid sticky broken HTTP mode)
+      // Prefer HTTP proxy setting removed — always clear sticky force-http flag
       try {
-        var httpPref = localStorage.getItem("nyx_safari_http_proxy");
-        if (httpPref === "1") localStorage.setItem("nyx_force_http_proxy", "1");
-        else localStorage.removeItem("nyx_force_http_proxy");
+        localStorage.removeItem("nyx_safari_http_proxy");
+        localStorage.removeItem("nyx_force_http_proxy");
       } catch (e) {}
       // Load / restore Safari proxy page into the active tab frame
       try {
@@ -14231,13 +15748,110 @@ window.setDesktopBackground = setDesktopBackground;
             external = true;
             already = false;
           }
-          if (!already || external) {
-            safariFrame.removeAttribute("src");
-            safariFrame.srcdoc = NYX_PROXY_HTML;
-          }
+          // Always refresh start page if suggestions UI missing (or first load)
+          var needsSuggest = false;
+          try {
+            if (already && safariFrame.contentDocument) {
+              needsSuggest = !safariFrame.contentDocument.getElementById("startSuggest");
+            } else if (already) {
+              needsSuggest = (safariFrame.getAttribute("srcdoc") || "").indexOf("startSuggest") < 0;
+            }
+          } catch (e2) { needsSuggest = true; }
+          // Always load latest start page (suggestions + search)
+          safariFrame.removeAttribute("src");
+          safariFrame.srcdoc = NYX_PROXY_HTML;
+
         } catch (e) {}
       }
     }
+
+
+    // Position Safari suggestions under the URL bar & wire bookmarks bar
+    (function wireSafariSuggestPosition() {
+      function placeSuggest() {
+        var urlInput = document.getElementById("safari-url");
+        var suggest = document.getElementById("safari-suggest");
+        var chrome = document.querySelector("#safari-window .safari-chrome") || document.querySelector(".safari-chrome");
+        if (!urlInput || !suggest || !chrome) return;
+        var urlbar = urlInput.closest(".safari-urlbar") || urlInput.parentElement;
+        if (!urlbar) return;
+        var barRect = urlbar.getBoundingClientRect();
+        suggest.style.position = "fixed";
+        suggest.style.top = (barRect.bottom + 4) + "px";
+        suggest.style.left = barRect.left + "px";
+        suggest.style.width = Math.max(barRect.width, 360) + "px";
+        suggest.style.right = "auto";
+        suggest.style.zIndex = "100000";
+      }
+
+      var urlInput = document.getElementById("safari-url");
+      var suggestBox = document.getElementById("safari-suggest");
+      if (urlInput && suggestBox) {
+        ["input", "focus", "click"].forEach(function (ev) {
+          urlInput.addEventListener(ev, function () {
+            placeSuggest();
+          });
+        });
+        window.addEventListener("resize", placeSuggest);
+        // Reposition when becoming visible
+        var obs = new MutationObserver(function () {
+          if (suggestBox.classList.contains("visible")) placeSuggest();
+        });
+        obs.observe(suggestBox, { attributes: true, attributeFilter: ["class", "style"] });
+      }
+
+      // Bookmarks bar navigation
+      document.addEventListener("click", function (e) {
+        var bm = e.target.closest && e.target.closest(".safari-bm[data-url]");
+        if (!bm) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var url = bm.getAttribute("data-url");
+        if (!url) return;
+        var fr = null;
+        try {
+          if (typeof window.getSafariActiveFrame === "function") fr = window.getSafariActiveFrame();
+        } catch (err) {}
+        if (!fr) fr = document.getElementById("safari-frame");
+        var urlEl = document.getElementById("safari-url");
+        if (urlEl) urlEl.value = url;
+        try {
+          if (fr && fr.contentWindow) {
+            fr.contentWindow.postMessage({ type: "safari-navigate", url: url }, "*");
+          }
+        } catch (err) {}
+        // Also try parent-level navigate helpers
+        try {
+          if (typeof window.safariNavigate === "function") window.safariNavigate(url);
+        } catch (err) {}
+      });
+    })();
+
+    // Hook Safari open for What's New + menus
+    (function () {
+      var _os = window.openSafari;
+      if (typeof _os !== "function") return;
+      window.openSafari = function () {
+        _os.apply(this, arguments);
+        if (typeof setMenuAppName === "function") setMenuAppName("Safari");
+        if (typeof updateMenuBarForApp === "function") updateMenuBarForApp("Safari");
+        setTimeout(function () {
+          try {
+            if (localStorage.getItem("safari_whats_new_seen") !== "1") {
+              var el = document.getElementById("safari-whats-new");
+              if (el) el.classList.add("visible");
+            }
+          } catch (e) {}
+          try {
+            if (localStorage.getItem("safari_privacy_banner_seen") !== "1") {
+              var b = document.getElementById("safari-privacy-banner");
+              if (b) b.classList.add("visible");
+            }
+          } catch (e) {}
+        }, 500);
+      };
+    })();
+
     function closeSafari() {
       const win = document.getElementById("safari-window") || document.querySelector(".safari");
       const pt = document.getElementById("point-safari");
@@ -15818,6 +17432,15 @@ window.setDesktopBackground = setDesktopBackground;
             win: document.getElementById("game-app-" + idx)
           };
         }
+        if (btn.getAttribute("data-dock-id") === "finder" || btn.getAttribute("title") === "Finder") {
+          const win = document.getElementById("finder-window");
+          return {
+            name: "Finder",
+            close: () => { if (typeof closeFinder === "function") closeFinder(); },
+            open: () => { if (typeof openFinder === "function") openFinder(); },
+            win
+          };
+        }
         if (btn.classList.contains("open_safari") || btn.getAttribute("title") === "Safari") {
           const win = document.getElementById("safari-window") || document.querySelector(".safari");
           return {
@@ -16406,8 +18029,11 @@ window.setDesktopBackground = setDesktopBackground;
         }
         try {
           localStorage.removeItem("nyx_safari_school_wifi");
-          if (httpOnly) localStorage.setItem("nyx_force_http_proxy", "1");
-          else localStorage.removeItem("nyx_force_http_proxy");
+          // HTTP proxy preference removed
+          try {
+            localStorage.removeItem("nyx_safari_http_proxy");
+            localStorage.removeItem("nyx_force_http_proxy");
+          } catch (e) {}
           localStorage.setItem("nyx_safari_proxy_engine", engine === "epoxy" ? "epoxy" : "libcurl");
         } catch (e) {}
       }
@@ -17655,6 +19281,618 @@ setToggle("safari-status-toggle", KEYS.safariStatus, true);
     <div class="mc-grid" id="mc-grid"></div>
   </div>
   <div id="app-switcher" aria-hidden="true"></div>
+
+
+  
+  
+  <div id="safari-suggest" class="safari-suggest" role="listbox"></div>
+
+  <div id="bookmark-dialog" class="bookmark-dialog" aria-hidden="true">
+    <div class="bookmark-dialog-card">
+      <h3>Add Bookmark</h3>
+      <label>Title<input type="text" id="bm-title" autocomplete="off" spellcheck="false"></label>
+      <label>URL<input type="text" id="bm-url" autocomplete="off" spellcheck="false"></label>
+      <div class="bookmark-dialog-actions">
+        <button type="button" id="bm-cancel">Cancel</button>
+        <button type="button" id="bm-save" class="primary">Add</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---- Bookmarks ---- */
+  var BM_KEY = "macos_safari_bookmarks_v1";
+  var DEFAULT_FAVS = [
+    { title: "Apple", url: "https://www.apple.com" },
+    { title: "iCloud", url: "https://www.icloud.com" },
+    { title: "Yahoo", url: "https://www.yahoo.com" },
+    { title: "Bing", url: "https://www.bing.com" },
+    { title: "Google", url: "https://www.google.com" },
+    { title: "Wikipedia", url: "https://www.wikipedia.org" },
+    { title: "Facebook", url: "https://www.facebook.com" },
+    { title: "Twitter", url: "https://twitter.com" }
+  ];
+  function loadBM() {
+    try {
+      var a = JSON.parse(localStorage.getItem(BM_KEY) || "null");
+      if (Array.isArray(a) && a.length) return a;
+    } catch (e) {}
+    return DEFAULT_FAVS.slice();
+  }
+  function saveBM(list) {
+    try { localStorage.setItem(BM_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function navTo(url) {
+    var input = document.getElementById("safari-url");
+    if (input) input.value = url;
+    try {
+      var fr = document.getElementById("safari-frame");
+      if (fr && fr.contentWindow) fr.contentWindow.postMessage({ type: "safari-navigate", url: url }, "*");
+    } catch (e) {}
+    try { if (typeof openSafari === "function") openSafari(); } catch (e) {}
+  }
+  function openBMDialog() {
+    var dlg = document.getElementById("bookmark-dialog");
+    var t = document.getElementById("bm-title");
+    var u = document.getElementById("bm-url");
+    if (!dlg) return;
+    var input = document.getElementById("safari-url");
+    var tab = document.querySelector(".safari-tab.active .safari-tab-title");
+    t.value = (tab && tab.textContent) ? tab.textContent.trim() : ((input && input.value) || "Bookmark");
+    u.value = (window.__safariLastUrl) || ((input && input.value) || "https://");
+    if (u.value && !/^https?:/i.test(u.value) && u.value.indexOf(".") > 0)
+      u.value = "https://" + u.value;
+    dlg.classList.add("open");
+    document.querySelectorAll(".navbar .leftLi.open").forEach(function (el) { el.classList.remove("open"); });
+    setTimeout(function () { t.focus(); t.select(); }, 40);
+  }
+  function closeBMDialog() {
+    var dlg = document.getElementById("bookmark-dialog");
+    if (dlg) dlg.classList.remove("open");
+  }
+  function addBM(title, url) {
+    title = (title || "").trim() || "Bookmark";
+    url = (url || "").trim();
+    if (!url) return false;
+    if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+    var list = loadBM();
+    var hit = false;
+    list.forEach(function (b) { if (b.url === url) { b.title = title; hit = true; } });
+    if (!hit) list.push({ title: title, url: url });
+    saveBM(list);
+    renderBMBar();
+    renderBMMenu();
+    return true;
+  }
+  function renderBMBar() {
+    var bar = document.getElementById("safari-bookmarks-bar");
+    if (!bar) return;
+    // Keep the default tiles; append user bookmarks that aren't defaults
+    bar.querySelectorAll(".safari-bm.user-bm").forEach(function (el) { el.remove(); });
+    var defaults = {};
+    DEFAULT_FAVS.forEach(function (b) { defaults[b.url] = true; });
+    loadBM().forEach(function (b) {
+      if (defaults[b.url]) return;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "safari-bm user-bm";
+      btn.setAttribute("data-url", b.url);
+      btn.innerHTML = '<span class="bm-tile" style="background:#0a84ff">★</span><span class="bm-label"></span>';
+      btn.querySelector(".bm-label").textContent = b.title;
+      bar.appendChild(btn);
+    });
+  }
+  function renderBMMenu() {
+    var ul = document.querySelector('.navbar .leftLi[data-menu="bookmarks"] > ul');
+    if (!ul) return;
+    ul.querySelectorAll(".bm-fav-item").forEach(function (el) { el.remove(); });
+    var fav = ul.querySelector('[data-action="favorites-submenu"]');
+    var ref = fav ? fav.closest("li") : null;
+    if (!ref) return;
+    loadBM().forEach(function (b) {
+      var li = document.createElement("li");
+      li.className = "bm-fav-item";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = b.title;
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navTo(b.url);
+        document.querySelectorAll(".navbar .leftLi.open").forEach(function (x) { x.classList.remove("open"); });
+      });
+      li.appendChild(btn);
+      ref.after(li);
+      ref = li;
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.id === "bm-cancel" || t.closest && t.closest("#bm-cancel")) { closeBMDialog(); return; }
+    if (t.id === "bm-save" || t.closest && t.closest("#bm-save")) {
+      var titleEl = document.getElementById("bm-title");
+      var urlEl = document.getElementById("bm-url");
+      if (addBM(titleEl && titleEl.value, urlEl && urlEl.value)) closeBMDialog();
+      return;
+    }
+    if (t.id === "bookmark-dialog") { closeBMDialog(); return; }
+    var bm = t.closest && t.closest(".safari-bm[data-url]");
+    if (bm) {
+      e.preventDefault();
+      navTo(bm.getAttribute("data-url"));
+      return;
+    }
+    var menuBtn = t.closest && t.closest(".navbar button[data-action='add-bookmark']");
+    if (menuBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      openBMDialog();
+      return;
+    }
+  }, true);
+
+  document.addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && (e.key === "d" || e.key === "D") && !e.shiftKey) {
+      var sw = document.getElementById("safari-window");
+      if (sw && getComputedStyle(sw).display !== "none") {
+        e.preventDefault();
+        openBMDialog();
+      }
+    }
+    if (e.key === "Escape") { closeBMDialog(); hideSuggest(); }
+  });
+
+  window.openBookmarkDialog = openBMDialog;
+  window.addSafariBookmark = addBM;
+  window.addEventListener("message", function (ev) {
+    if (ev.data && ev.data.type === "safari-state" && ev.data.url) window.__safariLastUrl = ev.data.url;
+  });
+
+  /* ---- Suggestions (screenshot-accurate) ---- */
+  var DB = [
+    "kyrie irving", "kyrie irving stats", "kyrie irving shoes", "kyrie irving trade",
+    "kyrie irving 76ers", "kyrie irving height", "kyrie irving contract", "kyrie irving age",
+    "kyrie irving injury", "lebron james", "stephen curry", "nba scores",
+    "apple", "apple.com", "icloud", "youtube", "wikipedia", "google", "gmail",
+    "facebook", "twitter", "weather", "chatgpt", "github", "reddit", "amazon", "netflix"
+  ];
+  var ICO = '<svg class="sg-ico" viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 015.917 12.094l4.244 4.245a1 1 0 01-1.414 1.414l-4.245-4.244A7.5 7.5 0 1110.5 3zm0 2a5.5 5.5 0 100 11 5.5 5.5 0 000-11z"/></svg>';
+
+  function buildList(q) {
+    q = String(q || "").trim();
+    if (!q) return [];
+    var ql = q.toLowerCase();
+    var out = [], seen = {};
+    function add(s) {
+      var k = s.toLowerCase();
+      if (seen[k]) return;
+      seen[k] = 1;
+      out.push(s);
+    }
+    add(q);
+    DB.forEach(function (s) { if (s.toLowerCase().indexOf(ql) === 0) add(s); });
+    DB.forEach(function (s) { if (s.toLowerCase().indexOf(ql) > 0) add(s); });
+    return out.slice(0, 10);
+  }
+
+  function placeSuggest() {
+    var input = document.getElementById("safari-url");
+    var box = document.getElementById("safari-suggest");
+    if (!input || !box) return;
+    var bar = input.closest(".safari-urlbar") || input;
+    var r = bar.getBoundingClientRect();
+    if (r.width < 10) return;
+    box.style.top = (r.bottom + 4) + "px";
+    box.style.left = r.left + "px";
+    box.style.width = Math.max(r.width, 320) + "px";
+  }
+
+  function showSuggest(q) {
+    var box = document.getElementById("safari-suggest");
+    if (!box) return;
+    var items = buildList(q);
+    if (!items.length) { hideSuggest(); return; }
+    var h = '<div class="sg-label">Google Suggestions</div>';
+    items.forEach(function (s) {
+      h += '<button type="button" class="sg-item" data-q="' +
+        s.replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '">' + ICO +
+        "<span>" + s.replace(/</g,"&lt;") + "</span></button>";
+    });
+    box.innerHTML = h;
+    placeSuggest();
+    box.classList.add("is-open");
+    // also support old class
+    box.classList.add("visible");
+  }
+
+  function hideSuggest() {
+    var box = document.getElementById("safari-suggest");
+    if (!box) return;
+    box.classList.remove("is-open", "visible");
+    box.innerHTML = "";
+  }
+
+  function pickSuggest(q) {
+    var input = document.getElementById("safari-url");
+    if (input) input.value = q;
+    hideSuggest();
+    // Navigate via existing Safari pipeline
+    try {
+      var ev = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+      if (input) input.dispatchEvent(ev);
+    } catch (e) {}
+    try {
+      var fr = document.getElementById("safari-frame");
+      if (fr && fr.contentWindow) {
+        var url = q;
+        if (!/^https?:\/\//i.test(q) && q.indexOf(".") < 0)
+          url = "https://www.google.com/search?q=" + encodeURIComponent(q);
+        else if (!/^https?:\/\//i.test(q))
+          url = "https://" + q;
+        fr.contentWindow.postMessage({ type: "safari-navigate", url: url }, "*");
+      }
+    } catch (e) {}
+  }
+
+  // Event delegation — never miss the input even if DOM is late
+  document.addEventListener("input", function (e) {
+    if (e.target && e.target.id === "safari-url") {
+      showSuggest(e.target.value);
+    }
+  }, true);
+  document.addEventListener("focusin", function (e) {
+    if (e.target && e.target.id === "safari-url" && e.target.value.trim()) {
+      showSuggest(e.target.value);
+    }
+  }, true);
+  document.addEventListener("focusout", function (e) {
+    if (e.target && e.target.id === "safari-url") {
+      setTimeout(hideSuggest, 180);
+    }
+  }, true);
+  document.addEventListener("mousedown", function (e) {
+    var item = e.target.closest && e.target.closest("#safari-suggest .sg-item");
+    if (item) {
+      e.preventDefault();
+      pickSuggest(item.getAttribute("data-q") || "");
+    }
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    var box = document.getElementById("safari-suggest");
+    if (!box || !box.classList.contains("is-open")) return;
+    if (document.activeElement && document.activeElement.id !== "safari-url") return;
+    var items = box.querySelectorAll(".sg-item");
+    if (!items.length) return;
+    var cur = box.querySelector(".sg-item.active");
+    var idx = cur ? Array.prototype.indexOf.call(items, cur) : -1;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      idx = Math.min(items.length - 1, idx + 1);
+      items.forEach(function (el, i) { el.classList.toggle("active", i === idx); });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      idx = Math.max(0, idx - 1);
+      items.forEach(function (el, i) { el.classList.toggle("active", i === idx); });
+    } else if (e.key === "Enter" && idx >= 0) {
+      e.preventDefault();
+      pickSuggest(items[idx].getAttribute("data-q"));
+    }
+  }, true);
+
+  window.addEventListener("resize", function () {
+    var box = document.getElementById("safari-suggest");
+    if (box && box.classList.contains("is-open")) placeSuggest();
+  });
+
+  function boot() {
+    renderBMBar();
+    renderBMMenu();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+  setTimeout(boot, 500);
+})();
+</script>
+
+
+
+
+<script>
+/* Clear sticky Prefer HTTP proxy flags (setting removed) */
+(function () {
+  try {
+    localStorage.removeItem("nyx_safari_http_proxy");
+    localStorage.removeItem("nyx_force_http_proxy");
+  } catch (e) {}
+})();
+</script>
+
+
+
+
+
+<script>
+/* ===== MacOS Safari Suggestions (parent-wired, reliable) ===== */
+(function () {
+  "use strict";
+  var DB = [
+    "kyrie irving", "kyrie irving stats", "kyrie irving shoes", "kyrie irving trade",
+    "kyrie irving 76ers", "kyrie irving height", "kyrie irving contract", "kyrie irving age",
+    "kyrie irving injury", "lebron james", "stephen curry", "nba scores",
+    "apple", "apple.com", "icloud", "youtube", "wikipedia", "google", "gmail",
+    "facebook", "twitter", "weather", "chatgpt", "github", "reddit", "amazon", "netflix"
+  ];
+
+  var STYLE_ID = "macos-suggest-style";
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+    var s = document.createElement("style");
+    s.id = STYLE_ID;
+    s.textContent = [
+      "#macos-url-suggest{position:fixed;z-index:2147483646;display:none;box-sizing:border-box;",
+      "padding:5px 0;border-radius:10px;background:rgba(242,242,242,.97);",
+      "backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);",
+      "border:1px solid rgba(0,0,0,.12);box-shadow:0 10px 40px rgba(0,0,0,.22);",
+      "font:13px -apple-system,BlinkMacSystemFont,sans-serif;color:#1d1d1f;max-height:400px;overflow-y:auto}",
+      "#macos-url-suggest.open{display:block}",
+      "#macos-url-suggest .lbl{padding:6px 14px 4px;font-size:11px;color:#8e8e93;font-weight:500}",
+      "#macos-url-suggest .row{display:flex;align-items:center;gap:10px;width:100%;padding:7px 14px;",
+      "border:0;background:transparent;color:#1d1d1f;font:13px -apple-system,BlinkMacSystemFont,sans-serif;",
+      "text-align:left;cursor:default}",
+      "#macos-url-suggest .row:hover,#macos-url-suggest .row.on{background:rgba(0,0,0,.06)}",
+      "#macos-url-suggest .ico{opacity:.4;flex-shrink:0}"
+    ].join("");
+    document.head.appendChild(s);
+  }
+
+  function buildList(q) {
+    q = String(q || "").trim();
+    if (!q) return [];
+    var ql = q.toLowerCase(), out = [], seen = {};
+    function add(s) {
+      var k = String(s).toLowerCase();
+      if (!k || seen[k]) return;
+      seen[k] = 1;
+      out.push(s);
+    }
+    add(q);
+    DB.forEach(function (s) { if (s.toLowerCase().indexOf(ql) === 0) add(s); });
+    DB.forEach(function (s) { if (s.toLowerCase().indexOf(ql) > 0) add(s); });
+    return out.slice(0, 10);
+  }
+
+  var ICO = '<svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 015.917 12.094l4.244 4.245a1 1 0 01-1.414 1.414l-4.245-4.244A7.5 7.5 0 1110.5 3zm0 2a5.5 5.5 0 100 11 5.5 5.5 0 000-11z"/></svg>';
+
+  function getUrlBox() {
+    var box = document.getElementById("macos-url-suggest");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "macos-url-suggest";
+      document.body.appendChild(box);
+    }
+    return box;
+  }
+
+  function showForInput(input, items) {
+    ensureStyle();
+    var box = getUrlBox();
+    if (!items.length) {
+      box.classList.remove("open");
+      box.innerHTML = "";
+      return;
+    }
+    var h = '<div class="lbl">Google Suggestions</div>';
+    items.forEach(function (s) {
+      h += '<button type="button" class="row" data-q="' +
+        String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '">' + ICO +
+        "<span>" + String(s).replace(/</g,"&lt;") + "</span></button>";
+    });
+    box.innerHTML = h;
+    var r = (input.getBoundingClientRect && input.getBoundingClientRect()) || { bottom: 80, left: 100, width: 400 };
+    // Prefer the urlbar container width
+    var bar = input.closest ? (input.closest(".safari-urlbar") || input) : input;
+    if (bar.getBoundingClientRect) r = bar.getBoundingClientRect();
+    box.style.top = Math.round(r.bottom + 4) + "px";
+    box.style.left = Math.round(r.left) + "px";
+    box.style.width = Math.round(Math.max(r.width, 320)) + "px";
+    box.classList.add("open");
+    box._sourceInput = input;
+  }
+
+  function hideUrlBox() {
+    var box = document.getElementById("macos-url-suggest");
+    if (box) {
+      box.classList.remove("open");
+      box.innerHTML = "";
+      box._sourceInput = null;
+    }
+  }
+
+  function navigateQuery(q) {
+    var input = document.getElementById("safari-url");
+    if (input) input.value = q;
+    hideUrlBox();
+    var url = q;
+    if (!/^https?:\/\//i.test(q) && q.indexOf(" ") >= 0 || (q.indexOf(".") < 0 && !/^https?:/i.test(q))) {
+      url = "https://www.google.com/search?q=" + encodeURIComponent(q);
+    } else if (!/^https?:\/\//i.test(q)) {
+      url = "https://" + q.replace(/^\/\//, "");
+    }
+    try {
+      var fr = document.getElementById("safari-frame");
+      if (fr && fr.contentWindow) fr.contentWindow.postMessage({ type: "safari-navigate", url: url }, "*");
+    } catch (e) {}
+    try {
+      if (input) input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    } catch (e) {}
+  }
+
+  // Chrome URL bar
+  document.addEventListener("input", function (e) {
+    if (!e.target || e.target.id !== "safari-url") return;
+    showForInput(e.target, buildList(e.target.value));
+  }, true);
+  document.addEventListener("keyup", function (e) {
+    if (!e.target || e.target.id !== "safari-url") return;
+    showForInput(e.target, buildList(e.target.value));
+  }, true);
+  document.addEventListener("focusin", function (e) {
+    if (e.target && e.target.id === "safari-url" && e.target.value.trim()) {
+      showForInput(e.target, buildList(e.target.value));
+    }
+  }, true);
+  document.addEventListener("focusout", function (e) {
+    if (e.target && e.target.id === "safari-url") setTimeout(hideUrlBox, 180);
+  }, true);
+  document.addEventListener("mousedown", function (e) {
+    var row = e.target.closest && e.target.closest("#macos-url-suggest .row");
+    if (!row) return;
+    e.preventDefault();
+    navigateQuery(row.getAttribute("data-q") || "");
+  }, true);
+
+  // Wire start page search INSIDE the srcdoc iframe (same-origin)
+  function wireStartPage(doc, win) {
+    if (!doc || doc.__suggestWired) return;
+    var input = doc.getElementById("startSearch");
+    if (!input) return;
+    doc.__suggestWired = true;
+
+    // Inject styles into iframe
+    if (!doc.getElementById("sg-style")) {
+      var st = doc.createElement("style");
+      st.id = "sg-style";
+      st.textContent = [
+        "#startSuggest{display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:99999;",
+        "background:rgba(246,246,246,.97);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);",
+        "border-radius:10px;border:1px solid rgba(0,0,0,.12);box-shadow:0 12px 40px rgba(0,0,0,.22);",
+        "padding:4px 0;max-height:380px;overflow-y:auto;font:13px -apple-system,BlinkMacSystemFont,sans-serif;color:#1d1d1f}",
+        "#startSuggest.open{display:block}",
+        "#startSuggest .lbl{padding:6px 14px 4px;font-size:11px;color:#8e8e93;font-weight:500}",
+        "#startSuggest .row{display:flex;align-items:center;gap:10px;width:100%;padding:7px 14px;border:0;",
+        "background:transparent;color:#1d1d1f;font:13px -apple-system,BlinkMacSystemFont,sans-serif;text-align:left;cursor:default}",
+        "#startSuggest .row:hover,#startSuggest .row.on{background:rgba(0,0,0,.06)}",
+        ".start-search-wrap{position:relative;z-index:20}",
+        "#start{overflow:visible!important}"
+      ].join("");
+      (doc.head || doc.documentElement).appendChild(st);
+    }
+
+    // Ensure suggest container
+    var box = doc.getElementById("startSuggest");
+    if (!box) {
+      var wrap = input.closest(".start-search-wrap") || input.parentElement;
+      box = doc.createElement("div");
+      box.id = "startSuggest";
+      if (wrap) wrap.appendChild(box);
+      else input.parentElement.appendChild(box);
+    }
+
+    function render(q) {
+      var items = buildList(q);
+      if (!items.length) {
+        box.classList.remove("open");
+        box.innerHTML = "";
+        return;
+      }
+      var h = '<div class="lbl">Google Suggestions</div>';
+      items.forEach(function (s) {
+        h += '<button type="button" class="row" data-q="' +
+          String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '">' + ICO +
+          "<span>" + String(s).replace(/</g,"&lt;") + "</span></button>";
+      });
+      box.innerHTML = h;
+      box.classList.add("open");
+    }
+
+    input.addEventListener("input", function () { render(input.value); });
+    input.addEventListener("keyup", function () { render(input.value); });
+    input.addEventListener("focus", function () { if (input.value.trim()) render(input.value); });
+    input.addEventListener("blur", function () { setTimeout(function () { box.classList.remove("open"); }, 160); });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { box.classList.remove("open"); box.innerHTML = ""; }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        var rows = box.querySelectorAll(".row");
+        if (!rows.length) return;
+        e.preventDefault();
+        var cur = box.querySelector(".row.on");
+        var idx = cur ? Array.prototype.indexOf.call(rows, cur) : -1;
+        if (e.key === "ArrowDown") idx = Math.min(rows.length - 1, idx + 1);
+        else idx = Math.max(0, idx - 1);
+        rows.forEach(function (el, i) { el.classList.toggle("on", i === idx); });
+      }
+      if (e.key === "Enter") {
+        var active = box.querySelector(".row.on");
+        if (active) {
+          input.value = active.getAttribute("data-q") || input.value;
+          box.classList.remove("open");
+        }
+      }
+    });
+    box.addEventListener("mousedown", function (e) {
+      var row = e.target.closest && e.target.closest(".row");
+      if (!row) return;
+      e.preventDefault();
+      input.value = row.getAttribute("data-q") || "";
+      box.classList.remove("open");
+      // Trigger search
+      try {
+        var go = doc.getElementById("startSearchGo");
+        if (go) go.click();
+        else {
+          var ev = new KeyboardEvent("keydown", { key: "Enter", bubbles: true });
+          input.dispatchEvent(ev);
+        }
+      } catch (err) {}
+    });
+  }
+
+  function tryWireFrame() {
+    var fr = document.getElementById("safari-frame");
+    if (!fr) return;
+    try {
+      var doc = fr.contentDocument;
+      if (doc && doc.getElementById("startSearch")) wireStartPage(doc, fr.contentWindow);
+    } catch (e) {}
+  }
+
+  // When Safari frame loads
+  document.addEventListener("DOMContentLoaded", function () {
+    ensureStyle();
+    var fr = document.getElementById("safari-frame");
+    if (fr) {
+      fr.addEventListener("load", function () { setTimeout(tryWireFrame, 50); setTimeout(tryWireFrame, 300); });
+    }
+    // Also poll briefly after open
+    setInterval(tryWireFrame, 1000);
+  });
+  // If already loaded
+  setTimeout(tryWireFrame, 500);
+  setTimeout(tryWireFrame, 1500);
+  setTimeout(tryWireFrame, 3000);
+
+  // Hook openSafari if present
+  var _obs = setInterval(function () {
+    if (typeof window.openSafari === "function" && !window.openSafari.__suggestHooked) {
+      var orig = window.openSafari;
+      window.openSafari = function () {
+        var r = orig.apply(this, arguments);
+        setTimeout(tryWireFrame, 100);
+        setTimeout(tryWireFrame, 400);
+        setTimeout(tryWireFrame, 1000);
+        return r;
+      };
+      window.openSafari.__suggestHooked = true;
+      clearInterval(_obs);
+    }
+  }, 200);
+})();
+</script>
 
 </body>
 </html>
